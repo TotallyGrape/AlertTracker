@@ -6,7 +6,8 @@ import { REQUEST_LIFETIME_MS } from '../residentPins';
 
 type Level = 'critical' | 'active_threat' | 'caution' | 'informational';
 type Evidence = { id: string; source: string; name: string; description: string; observed_at?: string; priority?: { score: number; basis?: string } };
-type Issue = { id: string; title: string; summary: string; level: Level; ai_status: string; model?: string; uncertainty: string; evidence: Evidence[];
+type Investigation = { question: string; limits: string; steps: { tool: string; status: string; checked_at: string; evidence_ids: string[]; sources: {source: string; status: string; last_success?: string}[] }[] };
+type Issue = { investigation?: Investigation; id: string; title: string; summary: string; level: Level; ai_status: string; model?: string; uncertainty: string; evidence: Evidence[];
   evidence_ids: string[]; evidence_quotes: { id: string; quote: string }[]; evidence_count: number; generated_at: string; expires_at: string; latitude?: number; longitude?: number;
   measured_trends: { id: string; direction: string; change: number; unit: string; samples: number }[];
   rule_reasons: string[]; rule_minimum: string; rule_maximum: string; guardrail_adjusted?: boolean; verification: string };

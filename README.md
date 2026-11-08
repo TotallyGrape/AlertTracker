@@ -2,7 +2,7 @@
 
 **Where Dallas comes together.**
 
-A multi-hazard disaster-assistance workspace for Greater Dallas / Dallas–Fort Worth, built for HackUTD. It turns scattered public alerts into a shared, live picture, and helps make sure a resident's request is seen, assessed and followed up instead of overlooked.
+A multi-hazard disaster-assistance workspace for Greater Dallas / Dallas–Fort Worth, built for HackUTD. It turns scattered public alerts into a shared, live picture, and helps people review and prioritize resident assistance needs alongside current hazards.
 
 > **Not a 911 replacement.** This is a hackathon prototype. In an emergency, call 911. Requests are unverified and are not dispatched to emergency services. Any simulated residents or teams in a demo are labeled as simulated and do not represent real agencies.
 
@@ -10,27 +10,30 @@ A multi-hazard disaster-assistance workspace for Greater Dallas / Dallas–Fort 
 
 | Area | State |
 | --- | --- |
-| Live hazard map | 15 public feeds collected centrally, shown as layered pins and areas with source health and freshness |
+| Live hazard map | 15 external-source adapters plus an internal community-report adapter; layered pins and areas with source health and freshness |
 | Priority 1–10 | Every alert and incident is scored by explainable rules; Nemotron can refine the score with guardrails |
 | AI summaries | Optional Nemotron headlines and summaries for alerts, storm reports and police call codes |
 | Police call locations | Street text geocoded with the City of Dallas locator; approximate locations are labeled |
 | Resident requests | Structured, private requests with optional AI assessment, 24-hour expiry and withdrawal ([details](RESIDENT_REPORTING.md)) |
-| Regional issues | Evidence-bounded issue cards synthesized from public feed data |
-| Coordinator and Responder tabs | Shell and placeholders; assignments and availability are not built yet |
+| Regional issues | Scrollable Nemotron responder cards with cited evidence, uncertainty, severity limits and filters |
+| Community concerns | Anonymous approximate-area summaries from multiple resident identities contribute pins and shared AI concerns under a labeled hackathon assumption |
+| Bounded AI investigations | Nemotron chooses up to two weather, river or traffic checks before final assessment; investigation traces remain in the API, hidden from cards |
+| Two-page navigation | **01 Resident** for private requests and the map; **02 Responder** for shared issue cards above the map. Coordinator navigation has been removed |
+| Assignment, resolution and dispatch | Not built; submitting a request does not guarantee assistance |
 | Production sign-in, notifications, routing | Not built |
 
 ## How it fits together
 
 ```text
 Public feeds ──► FastAPI collector (backend/) ──► private HTTPS ingest ──► SpacetimeDB on Maincloud ──► React app (live subscriptions)
-                  • polls 15 sources on schedules           (secret header)          • incident, source_health,
+                  • polls external feeds + community summaries           (secret header)          • incident, source_health,
                   • geocodes police calls                                              issue_card (public)
                   • rule priority + optional Nemotron                                  • resident_report (private,
                   • caches to backend/.cache                                             owner-only view)
 ```
 
 - **FastAPI** fetches each feed once for everyone, enriches records (water risk, priority, geocoding, AI) and keeps a read-only REST API on port 8000.
-- **SpacetimeDB** stores the shared state and pushes changes to every open browser. Residents' requests stay in a private table; each person sees only their own through the `my_reports` view.
+- **SpacetimeDB** stores the shared state and pushes changes to every open browser. Raw resident requests stay in a private table; each person sees only their own through the `my_reports` view. A credential-protected route supplies anonymous coarse-area aggregates to the collector.
 - **React** subscribes to Spacetime directly. Browsers never call the hazard APIs.
 
 ## Quick start
@@ -88,7 +91,7 @@ API sign-ups, from most open to least: [NASA FIRMS](https://firms.modaps.eosdis.
 
 ## Data sources
 
-All 15 adapters below were healthy on the running collector on November 8, 2026 (none stale). Zero records from a source usually means nothing is happening in the region, not a failure; check `/sources`.
+The 15 external-source adapters below are configured alongside the internal community-report adapter. Check `/sources` for current health and freshness. Zero records can mean no matching published data; it does not establish that nothing is happening.
 
 | Adapter | Source | Poll | Key |
 | --- | --- | --- | --- |
@@ -108,6 +111,8 @@ All 15 adapters below were healthy on the running collector on November 8, 2026 
 | `dallas_gis` | [City of Dallas](https://gis.dallascityhall.com/arcgis/rest/services/Basemap/CityLimits/MapServer/0) city limits | 24 h | No |
 | `openfreemap` | [OpenFreeMap](https://openfreemap.org/) style availability (the browser loads the tiles itself) | 24 h | No |
 
+The internal `community_reports` adapter refreshes every 60 seconds through a protected Spacetime route using the existing ingest credentials. It publishes only coarse-area multi-reporter counts and help types, never raw private request details.
+
 Limit or switch adapters with `ENABLED_SOURCES` in `backend/.env`.
 
 ### Collector endpoints
@@ -118,7 +123,7 @@ The collector serves read-only JSON on http://127.0.0.1:8000 (interactive docs a
 | --- | --- |
 | `/pins` | Records with coordinates, plus `unlocated` ones; filters `source`, `category`, `kind`, `include_stale`, `limit`, `offset` |
 | `/geojson` | Located records as a GeoJSON FeatureCollection |
-| `/issues` | Regional issue cards synthesized from public feed data |
+| `/issues` | Regional issue cards, supporting records and bounded-investigation traces; paginated with `limit` and `offset` |
 | `/sources` | Each adapter's status, last success, age, interval, stale flag, record count and error |
 | `/health` | Service status plus `spacetime_sync`, `nemotron`, `resident_ai` and `issue_analysis` worker status |
 | `/boundaries` | Dallas city limits as GeoJSON |
@@ -133,6 +138,24 @@ Researched but not integrated: DriveTexas, AirNow, NASA FIRMS, DART realtime, OR
 - **Summaries:** plain-language headlines and summaries are validated (no invented numbers, links or advice). Official NWS instructions are always shown verbatim.
 
 Details and guardrails: [backend/README.md](backend/README.md). Resident AI assessment: [RESIDENT_REPORTING.md](RESIDENT_REPORTING.md).
+
+## Resident requests and shared concerns
+
+Residents submit location, help type, people affected and relevant details. Their individual pins and AI assessments remain visible only to their browser identity. Requests can be withdrawn and expire after 24 hours.
+
+For the hackathon, reported needs are assumed accurate for prioritization, explicitly labeled **Hackathon assumption**. In approximately 5 km cells, two distinct reporter identities produce a Caution concern; three or more produce Active threat. Only the latest active request per identity per cell counts. These are demo thresholds, not validated disaster criteria; identities do not prove distinct people. Counts alone cannot produce Critical or establish a shared cause. A single request stays private and does not produce a shared concern.
+
+Public aggregates refresh every minute and expire after two minutes without renewal. Withdrawal and expiry remove requests from the next aggregate. Exact locations, descriptions, owner identities and individual AI outputs are not copied into the shared feed.
+
+## Responder assessments and investigations
+
+The Responder page shows scrollable cards filtered by **Critical**, **Active threat**, **Caution**, **Informational**, or **Awaiting AI**. Active threat badges and card borders are red. Facilities are excluded from issue synthesis. Rules screen current evidence first; Nemotron proposes the final level within evidence-based limits and supplies exact supporting quotes.
+
+Before final synthesis, Nemotron can identify missing evidence and choose zero to two read-only tools: weather (NWS/IEM), river (NWPS/USGS), or traffic (TomTom). The backend retrieves fresh cached API records within 15 km of the concern, then Nemotron reassesses with validated citations. This uses the shared feed collectors rather than making new upstream requests per investigation. Missing evidence is inconclusive; existing severity bounds still apply.
+
+Investigation questions, selected tools, source status and matching IDs are retained in `/issues` for inspection, but the investigation-step display is hidden from responder cards. Final summaries, uncertainty and expandable evidence remain visible. Workflows share a bounded time budget, and accepted assessments refresh after five minutes. Invalid plans or unsupported citations leave the group awaiting an accepted assessment. No tool can dispatch responders.
+
+See [RESPONDER_ISSUES.md](RESPONDER_ISSUES.md) for implementation details.
 
 ## Design system
 
@@ -177,7 +200,7 @@ Database `texas-response-zl8x2` runs on Maincloud. Ingestion, routes and secret 
 ```text
 src/
   App.tsx, main.tsx            Shell, tabs, optional Spacetime provider
-  screens/                     Resident, Coordinator and Responder screens
+  screens/                     Resident and Responder active screens
   components/LiveMap.tsx       Spacetime subscriptions, layer toggles, feed status
   components/DallasMap.tsx     MapLibre map, pin styling and popups
   components/ResidentReports.tsx  Resident request form and history
@@ -188,6 +211,8 @@ backend/app/
   main.py                      Collector, adapters, REST endpoints
   priority.py, nemotron.py     Rule priority, AI summaries and priority decisions
   resident_ai.py, issues.py    Private resident assessments, regional issue cards
+  investigation.py             Bounded Nemotron tool planning and evidence retrieval
+  community.py                 Anonymous community-summary adapter
   extra_feeds.py, tomtom.py    311, EONET and TomTom adapters
   spacetime_sync.py, water_risk.py  Ingest bridge, gauge flood assessment
 backend/tests/                 Backend unit tests
@@ -203,7 +228,7 @@ test/                          Local endpoint checker (gitignored)
 - A reported hazard doesn't prove someone needs help, and a disappearing call doesn't prove it was resolved.
 - A driving estimate is never an emergency response ETA.
 - Resident locations, contact details, medical and accessibility needs, and responder movement stay private.
-- A human coordinator approves consequential recommendations and assignments. Nemotron proposes; it doesn't dispatch.
+- Human review is required for consequential decisions. Assignment, resolution tracking and dispatch are not implemented; Nemotron proposes assessments.
 - Text from external feeds is untrusted data, never instructions for the AI.
 
 ## More documentation
@@ -211,6 +236,7 @@ test/                          Local endpoint checker (gitignored)
 - [SPACETIME_INTEGRATION.md](SPACETIME_INTEGRATION.md): Maincloud database, ingestion, subscriptions, secrets
 - [backend/README.md](backend/README.md): collector endpoints, adapters, caching, geocoding, priority and Nemotron
 - [RESIDENT_REPORTING.md](RESIDENT_REPORTING.md): resident requests, privacy, expiry and AI assessment
+- [RESPONDER_ISSUES.md](RESPONDER_ISSUES.md): shared issue synthesis, bounded investigations and guardrails
 - [API_READINESS.md](API_READINESS.md): anonymous API test results
 - [PROJECT_HANDOFF.txt](PROJECT_HANDOFF.txt): goals, scope, sources and build order
 - [CLAUDE.md](CLAUDE.md) / [AGENTS.md](AGENTS.md): SpacetimeDB rules for coding agents

@@ -134,7 +134,7 @@ def build_candidates(snapshots, sources, at):
             if item.get('risk'): item['risk'] = {k:v for k,v in item['risk'].items() if k!='assessed_at'}
         payload = {'family': key.split(':')[0], 'evidence': evidence, 'evidence_count': len(rows), 'sampled_evidence_count': len(evidence),
                    'measured_trends': trends[:12], 'rule_minimum': LEVELS[minimum], 'rule_maximum': LEVELS[maximum], 'rule_reasons': reasons}
-        digest = hashlib.sha256(json.dumps({'version':'community-demo-v4','payload':payload},sort_keys=True).encode()).hexdigest()
+        digest = hashlib.sha256(json.dumps({'version':'investigation-v1','payload':payload},sort_keys=True).encode()).hexdigest()
         result.append({'id':'issue:'+key, 'fingerprint':digest, 'payload':payload, 'all_evidence_ids':[row['id'] for row in rows],
                        'latitude': rows[0].get('latitude'), 'longitude': rows[0].get('longitude')})
     state.update(scanned=scanned, excluded=excluded, candidates=len(result))
@@ -173,9 +173,9 @@ def validate(raw, candidate):
 
 def render(candidate, at):
     cached = decisions.get(candidate['fingerprint'])
-    accepted = cached and cached.get('status') == 'complete'
-    payload = candidate['payload']
-    result = cached['decision'] if accepted else {'title': f"{payload['family'].replace('_',' ').title()} evidence — review pending",
+    accepted = cached and cached.get('status') == 'complete' and parse_time(cached['at']) > at-timedelta(minutes=5)
+    payload = cached.get('investigated_payload', candidate['payload']) if accepted else candidate['payload']
+    result = cached['decision'] if accepted else {'title': f"{payload['family'].replace('_',' ').title()} evidence â€” review pending",
         'summary':f"{payload['evidence_count']} current records grouped for review. Nemotron has not produced an accepted synthesis yet.",
         'level':payload['rule_minimum'], 'evidence_ids':[], 'evidence_quotes':[], 'uncertainty':'No AI synthesis available. Missing or incomplete evidence is not proof of safety.'}
     if payload['family']=='community_need':
@@ -183,8 +183,9 @@ def render(candidate, at):
     return {'id':candidate['id'], **result, 'ai_status':'complete' if accepted else cached.get('status','pending') if cached else 'pending',
         'model':cached.get('model') if accepted else None, 'generated_at':cached['at'] if accepted else at.isoformat(),
         'expires_at':(at+timedelta(minutes=5)).isoformat(), 'latitude':candidate['latitude'], 'longitude':candidate['longitude'],
-        'verification':'AI-detected concern — human review required' if accepted else 'Rule-screened evidence — AI pending',
-        'evidence':payload['evidence'], 'all_evidence_ids':candidate['all_evidence_ids'], 'evidence_count':payload['evidence_count'],
+        'verification':'AI-detected concern â€” human review required' if accepted else 'Rule-screened evidence â€” AI pending',
+        'investigation':cached.get('investigation') if accepted else None,
+        'evidence':payload['evidence'], 'all_evidence_ids':cached.get('all_evidence_ids',candidate['all_evidence_ids']) if accepted else candidate['all_evidence_ids'], 'evidence_count':payload['evidence_count'],
         'measured_trends':payload['measured_trends'], 'rule_minimum':payload['rule_minimum'], 'rule_maximum':payload['rule_maximum'],
         'rule_reasons':payload['rule_reasons'], 'source_count':len({r['source'] for r in payload['evidence']}),
         'independence':'Multiple providers do not necessarily mean independent confirmation.'}
@@ -206,17 +207,22 @@ async def run(snapshots, source_status, cache_dir: Path):
                     initial=await client.post(base+'/issues',headers={'x-ingest-secret':secret},json={'cards':cards})
                     initial.raise_for_status()
                 key=os.getenv('NVIDIA_API_KEY'); model=os.getenv('NEMOTRON_MODEL','nvidia/nemotron-3.5-lightning-30b-a3b')
-                waiting=[c for c in candidates if c['fingerprint'] not in decisions or decisions[c['fingerprint']].get('model')!=model or
+                waiting=[c for c in candidates if c['fingerprint'] not in decisions or decisions[c['fingerprint']].get('model')!=model or parse_time(decisions[c['fingerprint']]['at'])<at-timedelta(minutes=5) and decisions[c['fingerprint']].get('status')=='complete' or
                          decisions[c['fingerprint']].get('status')!='complete' and parse_time(decisions[c['fingerprint']]['at'])<at-timedelta(minutes=10)]
                 if key:
                     deadline=asyncio.get_running_loop().time()+55
                     for candidate in waiting[:6]:
                         if asyncio.get_running_loop().time()>=deadline: break
                         try:
-                            raw=await asyncio.wait_for(nemotron.call(client,os.getenv('NVIDIA_BASE_URL','https://integrate.api.nvidia.com/v1'),key,model,
-                                                    {'job':'issue',**candidate['payload']},system_prompt=PROMPT), timeout=max(1,deadline-asyncio.get_running_loop().time()))
-                            decision=validate(raw,candidate)
-                            decisions[candidate['fingerprint']]={'status':'complete','decision':decision,'model':model,'at':now().isoformat()}
+                            from .investigation import investigate
+                            base_url=os.getenv('NVIDIA_BASE_URL','https://integrate.api.nvidia.com/v1')
+                            async def workflow():
+                                expanded=await investigate(client,base_url,key,model,candidate,snapshots,source_status(),now())
+                                raw=await nemotron.call(client,base_url,key,model,{'job':'issue',**expanded['payload']},system_prompt=PROMPT)
+                                return expanded,validate(raw,expanded)
+                            expanded,decision=await asyncio.wait_for(workflow(),timeout=max(1,deadline-asyncio.get_running_loop().time()))
+                            decisions[candidate['fingerprint']]={'status':'complete','decision':decision,'model':model,'at':now().isoformat(),
+                                'investigation':expanded['payload']['investigation'],'investigated_payload':expanded['payload'],'all_evidence_ids':expanded['all_evidence_ids']}
                             state['ai_completed']+=1
                         except Exception as exc:
                             decisions[candidate['fingerprint']]={'status':'rejected','model':model,'at':now().isoformat()}
@@ -233,6 +239,6 @@ async def run(snapshots, source_status, cache_dir: Path):
                 if base and secret:
                     response=await client.post(base+'/issues',headers={'x-ingest-secret':secret},json={'cards':cards})
                     response.raise_for_status()
-                state.update(status='ok' if key else 'AI disabled — rule screening only', last_success=now().isoformat())
+                state.update(status='ok' if key else 'AI disabled â€” rule screening only', last_success=now().isoformat())
             except Exception as exc: state.update(status='retrying',last_error=type(exc).__name__)
             await asyncio.sleep(30)

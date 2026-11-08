@@ -203,10 +203,10 @@ h3 { font-family: var(--font-display); font-size: 19px; font-weight: 400; margin
 .issue-toolbar [aria-pressed="true"] { outline:2px solid var(--accent, #73856b); outline-offset:2px; }
 .issue-scroll { max-height:72vh; overflow-y:auto; overscroll-behavior:contain; padding:4px 10px 12px 2px; display:grid; gap:16px; margin-top:18px; }
 .issue-card { padding:22px; border-left:4px solid #2874a6; flex-shrink:0; }
-.issue-critical { border-left-color:#c63838; }.issue-active_threat { border-left-color:#d77a22; }.issue-caution { border-left-color:#b69b26; }
+.issue-critical { border-left-color:#c63838; }.issue-active_threat { border-left-color:#e04545; }.issue-caution { border-left-color:#b69b26; }
 .issue-card h2 { font-size:18px; margin:14px 0 10px; }.issue-card p { font-size:13px; line-height:1.7; }
 .issue-card-heading { display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center; font-size:11px; }
 .issue-level { font-weight:700; padding:5px 10px; border-radius:18px; background:#2874a61c; color:#2874a6; }
-.issue-level-critical { background:#c6383820; color:#c63838; }.issue-level-active_threat { background:#d77a2220; color:#bb671b; }.issue-level-caution { background:#b69b2620; color:#8d7618; }
+.issue-level-critical { background:#c6383820; color:#c63838; }.issue-level-active_threat { background:#e0454520; color:#e04545; }.issue-level-caution { background:#b69b2620; color:#8d7618; }
 .issue-meta,.issue-card small { opacity:.72; font-size:11px; }.issue-card details { margin-top:14px; font-size:12px; line-height:1.7; }.issue-card summary { cursor:pointer; font-weight:600; }
 .issue-evidence { padding-left:18px; }.issue-evidence li { margin-bottom:16px; }.private-issue-heading { margin:26px 0 0; font-size:16px; }.issue-scroll-private { max-height:40vh; }

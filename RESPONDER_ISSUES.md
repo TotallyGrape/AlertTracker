@@ -41,3 +41,12 @@ Backend tests cover facilities/stale/expired exclusions, ID deduplication, spati
 Verification: 66 backend tests, six module/pin tests, and frontend production build pass. Live synthesis scans approximately 1,000 non-resource records into several hundred groups; validated Nemotron cards have been observed in the API. Invalid outputs remain unassessed, and a large backlog populates gradually. Explicit negative uncertainty such as “not independently verified” is accepted; positive confirmation and unsupported safety assertions are rejected. Threat-category filter counts cover accepted model classifications; “Awaiting AI” separately lists unassessed/rejected groups.
 
 No extra API key or process is required: `start-app.bat` launches the existing services, and FastAPI starts the new worker automatically using existing NVIDIA and Spacetime configuration.
+
+
+## Bounded Nemotron investigation
+
+Before final synthesis, Nemotron returns a validated plan containing a missing-evidence question and zero to two tool names: weather, river, traffic. The backend executes those read-only queries over continuously refreshed external API snapshots within 15 km of the original concern. These are cached API evidence tools, not new upstream HTTP calls per investigation. Weather queries NWS alerts/forecasts and IEM; river queries NWPS and USGS; traffic queries TomTom. Stale sources, expired records and unsupported observation ages are rejected by the existing screening rules. Up to six evidence records per tool are added to the final model input. Empty results are explicitly inconclusive.
+
+The final Nemotron assessment must cite actual original/tool evidence IDs and exact quotes. Existing severity floors/caps remain in force: contextual records do not silently override the original concern's limits. Invalid plans, tool names, citations or assessments fail closed to Awaiting AI; no dispatch is possible. The whole planning/tool/synthesis workflow shares the worker's 55-second cycle budget. Accepted assessments refresh after five minutes. Cards show the question, chosen checks, source status, check time, matching IDs and final cited assessment. The planner may choose no checks when none are relevant.
+
+Deployment: backend restarted locally; Vite serves the updated card UI. No Spacetime schema migration or new key is required; issue payload JSON carries the investigation trace.

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { ResidentScreen } from './screens/ResidentScreen';
-import { CoordinatorScreen } from './screens/CoordinatorScreen';
 import { ResponderScreen } from './screens/ResponderScreen';
 import { DallasMap } from './components/DallasMap';
 import { LiveMap } from './components/LiveMap';
@@ -8,7 +7,6 @@ import './styles.css';
 
 const tabs = [
   { id: 'resident', label: 'Resident', screen: ResidentScreen },
-  { id: 'coordinator', label: 'Coordinator', screen: CoordinatorScreen },
   { id: 'responder', label: 'Responder', screen: ResponderScreen },
 ] as const;
 
@@ -64,7 +62,7 @@ export default function App() {
             </button>
           ))}
         </nav>
-        {active === 2 ? [panels, map] : [map, panels]}
+        {tabs[active].id === 'responder' ? [panels, map] : [map, panels]}
       </main>
       <footer className="site-footer glass--subtle"><span>Built around people. Ready for what comes next.</span><span>Rally Point <span className="footer-dot">/</span> Dallas pilot</span></footer>
     </div>
