@@ -1,0 +1,294 @@
+/* ==========================================================================
+   Liquid Glass — reusable design system
+   --------------------------------------------------------------------------
+   Drop this file into any project and import it before app styles.
+   1. Tokens       (:root custom properties, light + dark)
+   2. Backdrop     (.aurora static gradient; .aurora--animated opt-in)
+   3. Surfaces     (.glass, .glass--strong, .glass--subtle, .glass--tint, .glass--frosted)
+   PERFORMANCE: backdrop-filter re-blurs whatever is behind an element on every frame it changes.
+   Surfaces are therefore opaque-ish glass by default; add .glass--frosted only to a few small
+   elements that really sit over moving content (e.g. a sticky header). Keep .aurora static.
+   4. Controls     (.glass-button, .glass-segmented, .glass-chip, .glass-toggle,
+                    .glass-input, .glass-badge, .glass-dot)
+   5. Helpers      (.glass-lift, .glass-pop-in, .glass-stagger)
+   Everything reads from tokens, so re-theming is a matter of changing :root.
+   ========================================================================== */
+
+/* 1. Tokens ---------------------------------------------------------------- */
+:root {
+  /* Type */
+  --font-sans: 'Open Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;      /* body and UI text */
+  --font-display: 'Jua', 'Open Sans', 'Segoe UI', system-ui, sans-serif;          /* headings, brand: one weight (400) */
+  --font-label: 'Nanum Gothic', 'Open Sans', 'Segoe UI', system-ui, sans-serif;   /* small labels, tabs, eyebrows */
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', ui-monospace, monospace;
+
+  /* Brand + accents (playful, still calm enough for serious content) */
+  --accent: #0f9b7a;          /* primary teal-green */
+  --accent-2: #3a8dff;        /* sky */
+  --accent-3: #9b6bff;        /* lilac */
+  --accent-4: #ff8a5c;        /* peach */
+  --accent-ink: #ffffff;      /* text on accent */
+  --accent-gradient: linear-gradient(135deg, var(--accent) 0%, #1bb5a0 45%, var(--accent-2) 100%);
+
+  /* Status */
+  --danger: #e2483d;
+  --warning: #f29a2e;
+  --info: #2f7fe6;
+  --success: #18a06f;
+
+  /* Ink */
+  --ink: #12302b;
+  --ink-2: #3d5752;
+  --ink-3: #6b807b;
+  --ink-inverse: #ffffff;
+
+  /* Page */
+  --page: #eef4f2;
+  --aurora-1: #8ef0d3;
+  --aurora-2: #9cc9ff;
+  --aurora-3: #d9c4ff;
+  --aurora-4: #ffd2b8;
+
+  /* Glass material */
+  --glass-bg: rgba(255, 255, 255, 0.62);
+  --glass-bg-strong: rgba(255, 255, 255, 0.82);
+  --glass-bg-subtle: rgba(255, 255, 255, 0.42);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-border-soft: rgba(255, 255, 255, 0.45);
+  --glass-edge: rgba(18, 48, 43, 0.08);              /* faint outer line for definition */
+  --glass-highlight: rgba(255, 255, 255, 0.85);      /* specular top edge */
+  --glass-blur: 14px;
+  --glass-saturate: 180%;
+  --glass-shadow: 0 1px 2px rgba(18, 48, 43, 0.05), 0 12px 28px -12px rgba(18, 48, 43, 0.2);
+  --glass-shadow-hover: 0 1px 2px rgba(18, 48, 43, 0.06), 0 16px 32px -12px rgba(18, 48, 43, 0.26);
+  --glass-inner: inset 0 1px 0 var(--glass-highlight), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+
+  /* Shape */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+  --radius-pill: 999px;
+
+  /* Space */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+
+  /* Motion: springy but short */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 160ms;
+  --dur: 280ms;
+  --dur-slow: 520ms;
+
+  --focus-ring: 0 0 0 3px rgba(15, 155, 122, 0.35), 0 0 0 1px var(--accent);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --ink: #e8f4f1; --ink-2: #b6cbc6; --ink-3: #85a09a; --ink-inverse: #0b1a17;
+    --page: #0b1714;
+    --aurora-1: #0f6b58; --aurora-2: #1d4f99; --aurora-3: #4a2f8f; --aurora-4: #7a3d2a;
+    --glass-bg: rgba(22, 40, 36, 0.66); --glass-bg-strong: rgba(20, 36, 33, 0.84); --glass-bg-subtle: rgba(22, 40, 36, 0.48);
+    --glass-border: rgba(255, 255, 255, 0.14); --glass-border-soft: rgba(255, 255, 255, 0.08);
+    --glass-edge: rgba(0, 0, 0, 0.35); --glass-highlight: rgba(255, 255, 255, 0.18);
+    --glass-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), 0 10px 30px -8px rgba(0, 0, 0, 0.5);
+    --glass-shadow-hover: 0 1px 1px rgba(0, 0, 0, 0.3), 0 16px 40px -10px rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme='dark'] {
+  --ink: #e8f4f1; --ink-2: #b6cbc6; --ink-3: #85a09a; --ink-inverse: #0b1a17;
+  --page: #0b1714;
+  --aurora-1: #0f6b58; --aurora-2: #1d4f99; --aurora-3: #4a2f8f; --aurora-4: #7a3d2a;
+  --glass-bg: rgba(22, 40, 36, 0.66); --glass-bg-strong: rgba(20, 36, 33, 0.84); --glass-bg-subtle: rgba(22, 40, 36, 0.48);
+  --glass-border: rgba(255, 255, 255, 0.14); --glass-border-soft: rgba(255, 255, 255, 0.08);
+  --glass-edge: rgba(0, 0, 0, 0.35); --glass-highlight: rgba(255, 255, 255, 0.18);
+  --glass-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), 0 10px 30px -8px rgba(0, 0, 0, 0.5);
+  --glass-shadow-hover: 0 1px 1px rgba(0, 0, 0, 0.3), 0 16px 40px -10px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+
+/* 2. Backdrop -------------------------------------------------------------- */
+/* <div class="aurora" aria-hidden="true"></div>  — static, painted once (cheap).
+   <div class="aurora aurora--animated"><span></span>x4</div> — drifting blobs; costly with glass on top. */
+.aurora { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; contain: strict; transform: translateZ(0); /* own layer: painted once, never repainted on scroll */
+  background:
+    radial-gradient(62vmax 62vmax at -6% -10%, var(--aurora-1), transparent 62%),
+    radial-gradient(56vmax 56vmax at 106% 0%, var(--aurora-2), transparent 62%),
+    radial-gradient(50vmax 50vmax at 40% 112%, var(--aurora-3), transparent 62%),
+    radial-gradient(38vmax 38vmax at 96% 98%, var(--aurora-4), transparent 62%),
+    var(--page); }
+.aurora span { display: none; }
+.aurora--animated span { display: block; position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.75; animation: aurora-drift 26s var(--ease-out) infinite alternate; }
+.aurora--animated span:nth-child(1) { width: 52vmax; height: 52vmax; left: -14vmax; top: -18vmax; background: radial-gradient(circle at 30% 30%, var(--aurora-1), transparent 65%); }
+.aurora--animated span:nth-child(2) { width: 46vmax; height: 46vmax; right: -16vmax; top: -6vmax; background: radial-gradient(circle at 60% 40%, var(--aurora-2), transparent 65%); animation-duration: 32s; animation-delay: -6s; }
+.aurora--animated span:nth-child(3) { width: 40vmax; height: 40vmax; left: 18vmax; bottom: -22vmax; background: radial-gradient(circle at 50% 50%, var(--aurora-3), transparent 65%); animation-duration: 38s; animation-delay: -12s; }
+.aurora--animated span:nth-child(4) { width: 30vmax; height: 30vmax; right: 4vmax; bottom: -8vmax; background: radial-gradient(circle at 50% 50%, var(--aurora-4), transparent 65%); animation-duration: 30s; animation-delay: -3s; opacity: 0.55; }
+/* Fine grain keeps large gradients from banding and gives the glass something to refract. */
+/* Optional film grain: <div class="aurora aurora--grain">. Off by default (extra full-screen layer). */
+.aurora--grain::after { content: ''; position: absolute; inset: 0; opacity: 0.1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E"); }
+@keyframes aurora-drift {
+  0% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+  50% { transform: translate3d(4vmax, 3vmax, 0) scale(1.08) rotate(12deg); }
+  100% { transform: translate3d(-3vmax, 5vmax, 0) scale(0.96) rotate(-8deg); }
+}
+
+/* 3. Surfaces -------------------------------------------------------------- */
+.glass, .glass--strong, .glass--subtle, .glass--tint {
+  position: relative;
+  isolation: isolate;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-inner), 0 0 0 1px var(--glass-edge), var(--glass-shadow);
+}
+.glass--frosted { -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)); }
+/* Specular sheen: a soft diagonal light across the top-left, like curved glass catching light. */
+.glass::before, .glass--strong::before, .glass--subtle::before, .glass--tint::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1;
+  background:
+    radial-gradient(120% 60% at 0% 0%, rgba(255, 255, 255, 0.32), transparent 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 40%);
+}
+.glass--strong { background: var(--glass-bg-strong); }
+.glass--subtle { background: var(--glass-bg-subtle); box-shadow: var(--glass-inner), 0 0 0 1px var(--glass-edge); }
+.glass--tint { background: linear-gradient(135deg, color-mix(in srgb, var(--tint, var(--accent)) 22%, var(--glass-bg)), var(--glass-bg)); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass--frosted { background: var(--glass-bg-strong); }
+}
+
+/* 4. Controls -------------------------------------------------------------- */
+.glass-button {
+  --btn-bg: var(--glass-bg-strong);
+  --btn-ink: var(--ink);
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-height: 40px; padding: 0 var(--space-4);
+  font: inherit; font-size: 13px; font-weight: 600; letter-spacing: -0.01em; color: var(--btn-ink);
+  background: var(--btn-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-pill);
+  box-shadow: var(--glass-inner), 0 0 0 1px var(--glass-edge), 0 4px 14px -6px rgba(18, 48, 43, 0.25);
+  cursor: pointer; white-space: nowrap; text-decoration: none;
+  transition: transform var(--dur) var(--ease-spring);
+}
+.glass-button:hover { transform: translateY(-1px) scale(1.02); box-shadow: var(--glass-inner), 0 0 0 1px var(--glass-edge), 0 10px 22px -8px rgba(18, 48, 43, 0.3); }
+.glass-button:active { transform: translateY(0) scale(0.97); transition-duration: 90ms; }
+.glass-button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.glass-button--primary {
+  --btn-ink: var(--accent-ink);
+  background: var(--accent-gradient); border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 8px 20px -8px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+.glass-button--primary:hover { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 14px 28px -10px color-mix(in srgb, var(--accent) 80%, transparent); }
+.glass-button--small { min-height: 32px; padding: 0 var(--space-3); font-size: 12px; }
+.glass-button--ghost { background: transparent; border-color: transparent; box-shadow: none; }
+.glass-button--ghost:hover { background: var(--glass-bg-subtle); }
+
+/* Segmented control with a sliding glass thumb.
+   Markup: <div class="glass-segmented" style="--count: 3; --index: 0"> <button aria-selected="true">…</button> … </div> */
+.glass-segmented {
+  --count: 3; --index: 0; --pad: 5px;
+  position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+  padding: var(--pad); gap: 0; border-radius: var(--radius-pill);
+  background: var(--glass-bg-subtle); border: 1px solid var(--glass-border-soft);
+  box-shadow: inset 0 1px 2px rgba(18, 48, 43, 0.08), 0 0 0 1px var(--glass-edge);
+}
+.glass-segmented::before {
+  content: ''; position: absolute; z-index: 0;
+  top: var(--pad); bottom: var(--pad); left: var(--pad);
+  width: calc((100% - 2 * var(--pad)) / var(--count));
+  transform: translateX(calc(100% * var(--index)));
+  border-radius: var(--radius-pill);
+  background: var(--glass-bg-strong); border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-inner), 0 6px 16px -6px rgba(18, 48, 43, 0.28);
+  transition: transform var(--dur-slow) var(--ease-spring);
+}
+.glass-segmented > button {
+  position: relative; z-index: 1; border: 0; background: transparent; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  padding: 10px var(--space-5); border-radius: var(--radius-pill);
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--ink-3);
+  transition: color var(--dur) var(--ease-out), transform var(--dur) var(--ease-spring);
+}
+.glass-segmented > button:hover { color: var(--ink-2); }
+.glass-segmented > button:active { transform: scale(0.96); }
+.glass-segmented > button[aria-selected='true'] { color: var(--ink); }
+
+/* Chip, optionally wrapping a checkbox: <label class="glass-chip" style="--tint:#e2483d"><input type="checkbox">…</label> */
+.glass-chip {
+  --tint: var(--accent);
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  min-height: 34px; padding: 0 var(--space-3) 0 var(--space-2);
+  border-radius: var(--radius-pill); font-size: 12px; font-weight: 600; color: var(--ink-2);
+  background: var(--glass-bg-subtle); border: 1px solid var(--glass-border-soft);
+  box-shadow: var(--glass-inner), 0 0 0 1px var(--glass-edge);
+  cursor: pointer; user-select: none;
+  transition: transform var(--dur) var(--ease-spring);
+}
+.glass-chip:hover { transform: translateY(-1px); }
+.glass-chip:active { transform: scale(0.97); }
+.glass-chip:has(input:checked) {
+  color: var(--ink);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--tint) 20%, var(--glass-bg-strong)), var(--glass-bg-strong));
+  border-color: color-mix(in srgb, var(--tint) 35%, var(--glass-border));
+  box-shadow: var(--glass-inner), 0 0 0 1px var(--glass-edge), 0 6px 16px -8px color-mix(in srgb, var(--tint) 70%, transparent);
+}
+.glass-chip input[type='checkbox'] {
+  appearance: none; margin: 0; width: 18px; height: 18px; flex: none; border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--tint) 55%, transparent); background: rgba(255, 255, 255, 0.6);
+  display: grid; place-items: center; cursor: pointer;
+  transition: background var(--dur) var(--ease-out), border-color var(--dur), transform var(--dur) var(--ease-spring);
+}
+.glass-chip input[type='checkbox']::after {
+  content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--ink-inverse);
+  transform: scale(0); transition: transform var(--dur) var(--ease-spring);
+}
+.glass-chip input[type='checkbox']:checked { background: var(--tint); border-color: var(--tint); }
+.glass-chip input[type='checkbox']:checked::after { transform: scale(1); background: #fff; }
+.glass-chip input[type='checkbox']:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* Inputs */
+.glass-input, .glass-field input, .glass-field textarea, .glass-field select {
+  width: 100%; min-height: 42px; padding: 10px var(--space-4);
+  font: inherit; font-size: 14px; color: var(--ink);
+  background: var(--glass-bg-strong); border: 1px solid var(--glass-border-soft); border-radius: var(--radius-sm);
+  box-shadow: inset 0 1px 2px rgba(18, 48, 43, 0.06), 0 0 0 1px var(--glass-edge);
+  transition: box-shadow var(--dur) var(--ease-out), border-color var(--dur), background var(--dur);
+}
+.glass-input::placeholder, .glass-field ::placeholder { color: var(--ink-3); opacity: 0.8; }
+.glass-input:focus, .glass-field input:focus, .glass-field textarea:focus, .glass-field select:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+.glass-field { display: grid; gap: 6px; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+.glass-field textarea { min-height: 96px; resize: vertical; }
+
+/* Badges, dots */
+.glass-badge {
+  --tint: var(--accent);
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--radius-pill);
+  font-size: 11px; font-weight: 700; letter-spacing: 0.02em; color: color-mix(in srgb, var(--tint) 80%, var(--ink));
+  background: color-mix(in srgb, var(--tint) 14%, var(--glass-bg-strong));
+  border: 1px solid color-mix(in srgb, var(--tint) 25%, transparent);
+}
+.glass-badge--solid { color: #fff; background: var(--tint); border-color: transparent; box-shadow: 0 4px 10px -4px color-mix(in srgb, var(--tint) 70%, transparent); }
+.glass-dot { --tint: var(--success); position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--tint); flex: none; }
+.glass-dot--live::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid var(--tint); opacity: 0.35; }
+@keyframes glass-ping { 0% { transform: scale(0.6); opacity: 0.8; } 100% { transform: scale(1.8); opacity: 0; } }
+
+/* 5. Helpers --------------------------------------------------------------- */
+/* Transform-only hover: animating box-shadow repaints the whole card every frame. */
+.glass-lift { transition: transform var(--dur) var(--ease-spring); }
+.glass-lift:hover { transform: translateY(-3px); }
+.glass-pop-in { animation: glass-pop-in var(--dur-slow) var(--ease-spring) both; }
+.glass-stagger > * { animation: glass-pop-in var(--dur-slow) var(--ease-spring) both; }
+.glass-stagger > *:nth-child(2) { animation-delay: 60ms; }
+.glass-stagger > *:nth-child(3) { animation-delay: 120ms; }
+.glass-stagger > *:nth-child(4) { animation-delay: 180ms; }
+.glass-stagger > *:nth-child(5) { animation-delay: 240ms; }
+@keyframes glass-pop-in { from { opacity: 0; transform: translateY(10px) scale(0.985); } to { opacity: 1; transform: none; } }
+.gradient-text { background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora--animated span, .glass-dot--live::after { animation: none; }
+  .glass-pop-in, .glass-stagger > * { animation: none; }
+  .glass-segmented::before, .glass-button, .glass-chip, .glass-lift { transition: none; }
+}

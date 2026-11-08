@@ -10,7 +10,7 @@ function Get-ServiceState($Url, $Expected) {
     try {
         $response = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 3
         if ($response.Content -notmatch $Expected) {
-            throw "A different service is responding at $Url. Stop it before starting Texas Response."
+            throw "A different service is responding at $Url. Stop it before starting Rally Point."
         }
         return $true
     } catch [System.Net.WebException] {
@@ -26,7 +26,7 @@ try {
     & $pythonExe -c 'import fastapi, uvicorn, httpx, shapely, dotenv' 2>$null
     if ($LASTEXITCODE -ne 0) { throw 'Missing Python dependencies. Run backend/.venv/Scripts/python.exe -m pip install -r backend/requirements.txt' }
     $backendRunning = Get-ServiceState 'http://127.0.0.1:8000/openapi.json' 'Dallas Disaster Feed API'
-    $frontendRunning = Get-ServiceState 'http://localhost:5173/' 'Texas Response'
+    $frontendRunning = Get-ServiceState 'http://localhost:5173/' 'Rally Point'
     if (-not (Test-Path -LiteralPath (Join-Path $backendRoot '.env'))) { Write-Warning 'backend/.env is absent. Optional Spacetime synchronization and Nemotron may be disabled.' }
     if ($CheckOnly) {
         Write-Host "Checks passed. Backend already running: $backendRunning. Frontend already running: $frontendRunning."
@@ -43,7 +43,7 @@ try {
     } else { Write-Host 'Vite is already running; leaving it unchanged.' }
     $ready = $false
     for ($attempt = 0; $attempt -lt 20; $attempt++) {
-        if ((Get-ServiceState 'http://127.0.0.1:8000/openapi.json' 'Dallas Disaster Feed API') -and (Get-ServiceState 'http://localhost:5173/' 'Texas Response')) { $ready = $true; break }
+        if ((Get-ServiceState 'http://127.0.0.1:8000/openapi.json' 'Dallas Disaster Feed API') -and (Get-ServiceState 'http://localhost:5173/' 'Rally Point')) { $ready = $true; break }
         Start-Sleep -Milliseconds 500
     }
     if (-not $ready) { throw 'Services did not become ready. Inspect .logs/backend.err.log and .logs/frontend.err.log.' }

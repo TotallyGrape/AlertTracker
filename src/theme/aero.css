@@ -1,0 +1,108 @@
+/* ==========================================================================
+   Frutiger Aero palette for the Liquid Glass system
+   --------------------------------------------------------------------------
+   Import after glass.css. Only tokens and a few glossy finishes change, so it
+   can be swapped back by removing the import. Sky blues, aqua, fresh lime,
+   white clouds and glossy "wet" highlights. Every effect is static (no
+   animation, no live blur) to keep scrolling smooth.
+   ========================================================================== */
+
+:root {
+  --accent: #0a8fe0;          /* sky blue */
+  --accent-2: #19c3e6;        /* aqua */
+  --accent-3: #5cc23a;        /* fresh lime green */
+  --accent-4: #b6e84a;        /* spring yellow-green */
+  --accent-ink: #ffffff;
+  --accent-gradient: linear-gradient(180deg, #48b8ff 0%, #0a8fe0 55%, #0874c4 100%);
+  --accent-gradient-green: linear-gradient(180deg, #9be15d 0%, #5cc23a 55%, #3e9e27 100%);
+
+  /* Glossy highlight laid over a colored fill: bright upper half, crisp horizon, soft glow below. */
+  --gloss: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.28) 48%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0.12) 100%);
+
+  --success: #3aa82c;
+  --info: #0a8fe0;
+
+  --ink: #0b2e4a;
+  --ink-2: #2f5a78;
+  --ink-3: #5e809a;
+
+  --page: #dff3ff;
+  --aurora-1: #ffffff;        /* clouds */
+  --aurora-2: #7fd3ff;        /* sky */
+  --aurora-3: #a8ec7a;        /* grass */
+  --aurora-4: #c9f6ff;        /* water shimmer */
+
+  --glass-bg: rgba(255, 255, 255, 0.60);
+  --glass-bg-strong: rgba(255, 255, 255, 0.82);
+  --glass-bg-subtle: rgba(255, 255, 255, 0.42);
+  --glass-border: rgba(255, 255, 255, 0.95);
+  --glass-border-soft: rgba(255, 255, 255, 0.7);
+  --glass-edge: rgba(10, 90, 150, 0.14);
+  --glass-highlight: rgba(255, 255, 255, 1);
+  --glass-shadow: 0 1px 2px rgba(10, 70, 120, 0.07), 0 14px 30px -12px rgba(10, 90, 150, 0.28);
+  --glass-shadow-hover: 0 1px 2px rgba(10, 70, 120, 0.08), 0 18px 36px -12px rgba(10, 90, 150, 0.34);
+  --focus-ring: 0 0 0 3px rgba(10, 143, 224, 0.35), 0 0 0 1px var(--accent);
+  --bubble: 1;                /* soap-bubble brightness in the backdrop */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --ink: #e6f5ff; --ink-2: #a9cbe3; --ink-3: #7aa3c0; --ink-inverse: #04182a;
+    --page: #04203a; --bubble: 0.22;
+    --aurora-1: #0d4f86; --aurora-2: #0a6fb0; --aurora-3: #1f6b2a; --aurora-4: #0b7c96;
+    --glass-bg: rgba(14, 52, 86, 0.62); --glass-bg-strong: rgba(10, 40, 70, 0.86); --glass-bg-subtle: rgba(14, 52, 86, 0.45);
+    --glass-border: rgba(160, 220, 255, 0.28); --glass-border-soft: rgba(160, 220, 255, 0.16);
+    --glass-edge: rgba(0, 10, 25, 0.45); --glass-highlight: rgba(190, 235, 255, 0.35);
+    --gloss: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.12) 48%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0.06) 100%);
+  }
+}
+:root[data-theme='dark'] {
+  --ink: #e6f5ff; --ink-2: #a9cbe3; --ink-3: #7aa3c0; --ink-inverse: #04182a;
+  --page: #04203a; --bubble: 0.22;
+  --aurora-1: #0d4f86; --aurora-2: #0a6fb0; --aurora-3: #1f6b2a; --aurora-4: #0b7c96;
+  --glass-bg: rgba(14, 52, 86, 0.62); --glass-bg-strong: rgba(10, 40, 70, 0.86); --glass-bg-subtle: rgba(14, 52, 86, 0.45);
+  --glass-border: rgba(160, 220, 255, 0.28); --glass-border-soft: rgba(160, 220, 255, 0.16);
+  --glass-edge: rgba(0, 10, 25, 0.45); --glass-highlight: rgba(190, 235, 255, 0.35);
+  --gloss: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.12) 48%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0.06) 100%);
+}
+
+/* Sky backdrop: blue sky fading to a bright horizon, white cloud puffs, a green meadow glow, and a few
+   soap-bubble bokeh circles. One static paint. */
+.aurora {
+  background:
+    radial-gradient(circle at 18% 26%, rgb(255 255 255 / calc(0.55 * var(--bubble, 1))) 0 26px, rgba(255, 255, 255, 0.0) 28px),
+    radial-gradient(circle at 82% 34%, rgb(255 255 255 / calc(0.45 * var(--bubble, 1))) 0 16px, rgba(255, 255, 255, 0) 18px),
+    radial-gradient(circle at 70% 62%, rgb(255 255 255 / calc(0.35 * var(--bubble, 1))) 0 40px, rgba(255, 255, 255, 0) 42px),
+    radial-gradient(circle at 10% 72%, rgb(255 255 255 / calc(0.3 * var(--bubble, 1))) 0 12px, rgba(255, 255, 255, 0) 14px),
+    radial-gradient(48vmax 22vmax at 22% 8%, var(--aurora-1), transparent 70%),
+    radial-gradient(40vmax 18vmax at 78% 14%, var(--aurora-1), transparent 70%),
+    radial-gradient(90vmax 40vmax at 50% 112%, var(--aurora-3), transparent 68%),
+    radial-gradient(60vmax 30vmax at 100% 70%, var(--aurora-4), transparent 70%),
+    linear-gradient(180deg, var(--aurora-2) 0%, var(--page) 55%, var(--page) 100%);
+}
+
+/* Glossy finishes ---------------------------------------------------------- */
+.glass-button--primary {
+  background: var(--gloss), var(--accent-gradient);
+  border-color: rgba(4, 90, 160, 0.55);
+  text-shadow: 0 1px 1px rgba(0, 50, 100, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 -2px 6px rgba(0, 60, 120, 0.25), 0 6px 16px -6px rgba(10, 120, 200, 0.7);
+}
+.glass-button--primary:hover { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -2px 6px rgba(0, 60, 120, 0.25), 0 10px 22px -8px rgba(10, 120, 200, 0.85); filter: saturate(1.1) brightness(1.04); }
+.glass-button { background: var(--gloss), var(--btn-bg); }
+.glass-button--ghost { background: transparent; }
+
+.glass-segmented::before {
+  background: var(--gloss), linear-gradient(180deg, #ffffff, #e3f4ff);
+  border-color: rgba(10, 143, 224, 0.35);
+  box-shadow: inset 0 1px 0 #fff, 0 4px 12px -4px rgba(10, 120, 200, 0.45);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .glass-segmented::before { background: var(--gloss), linear-gradient(180deg, #1c6aa6, #0d4f86); }
+}
+:root[data-theme='dark'] .glass-segmented::before { background: var(--gloss), linear-gradient(180deg, #1c6aa6, #0d4f86); }
+
+.glass-chip:has(input:checked) { background: var(--gloss), linear-gradient(180deg, color-mix(in srgb, var(--tint) 22%, #fff), color-mix(in srgb, var(--tint) 10%, var(--glass-bg-strong))); }
+.glass-chip input[type='checkbox']:checked { background: var(--gloss), var(--tint); box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.2); }
+.glass-badge { background: var(--gloss), color-mix(in srgb, var(--tint) 16%, var(--glass-bg-strong)); }
+.gradient-text { background: linear-gradient(180deg, #2aa8ff, #0a6fc0); -webkit-background-clip: text; background-clip: text; }

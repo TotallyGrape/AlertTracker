@@ -16,8 +16,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from shapely.geometry import box, mapping, shape
 from .spacetime_sync import run as run_sync, state as sync_state
 from . import nemotron
+from . import resident_ai
+from . import issues
 from .water_risk import enrich_water
 from .priority import enrich_priority
+from .extra_feeds import collect_311, collect_eonet
+from .tomtom import collect_tomtom
+from .community import collect_community
 
 ROOT = Path(__file__).resolve().parents[1]
 load_dotenv(ROOT / '.env')
@@ -29,7 +34,8 @@ CACHE = ROOT / '.cache'
 STYLE = 'https://tiles.openfreemap.org/styles/liberty'
 INTERVALS = {'nws_alerts': 60, 'nws_weather': 900, 'nwps': 300, 'usgs_water': 300,
              'dallas_police': 120, 'iem': 300, 'nifc': 600, 'earthquakes': 60,
-             'fema_shelters': 1200, 'dallas_gis': 86400, 'openfreemap': 86400, 'overpass': 86400}
+             'fema_shelters': 1200, 'dallas_gis': 86400, 'openfreemap': 86400, 'overpass': 86400,
+             'dallas_311': 3600, 'eonet': 1800, 'tomtom': max(300, int(os.getenv('TOMTOM_POLL_SECONDS', '900'))), 'community_reports':60}
 ENABLED = os.getenv('ENABLED_SOURCES', ','.join(INTERVALS)).split(',')
 if any(s not in INTERVALS for s in ENABLED):
     raise ValueError('Unknown ENABLED_SOURCES entry')
@@ -185,7 +191,15 @@ async def collect(source, client):
         if item:
             items.append(item)
 
-    if source == 'nws_alerts':
+    if source == 'community_reports':
+        items = await collect_community(client, record, now())
+    elif source == 'tomtom':
+        items = await collect_tomtom(client, BBOX, record, now())
+    elif source == 'dallas_311':
+        items = await collect_311(client, BBOX, record, now())
+    elif source == 'eonet':
+        items = await collect_eonet(client, BBOX, record, now())
+    elif source == 'nws_alerts':
         data = await get(client, 'https://api.weather.gov/alerts/active', area='TX')
         zones = {}
         for f in data['features']:
@@ -407,6 +421,8 @@ async def lifespan(_app):
         tasks = [asyncio.create_task(poll(source, client)) for source in ENABLED]
         tasks.append(asyncio.create_task(run_sync(snapshots, source_status, now, nemotron.prepare_for_sync)))
         tasks.append(asyncio.create_task(nemotron.run(snapshots, CACHE)))
+        tasks.append(asyncio.create_task(resident_ai.run()))
+        tasks.append(asyncio.create_task(issues.run(snapshots, source_status, CACHE)))
         yield
         for task in tasks:
             task.cancel()
@@ -433,7 +449,14 @@ def health_endpoint():
     states = source_status()
     return {'status': 'ok' if all(s['status'] == 'ok' and not s['stale'] for s in states.values()) else 'degraded',
             'service': 'running', 'ready_sources': sum(s['last_success'] is not None for s in states.values()), 'total_sources': len(states),
-            'spacetime_sync': sync_state, 'nemotron': nemotron.state}
+            'spacetime_sync': sync_state, 'nemotron': nemotron.state, 'resident_ai': resident_ai.state, 'issue_analysis': issues.state}
+
+
+@app.get('/issues')
+def issues_endpoint(limit: int = Query(50, ge=1, le=200), offset: int = Query(0, ge=0)):
+    current = [card for card in issues.cards if datetime.fromisoformat(card['expires_at']) > now()]
+    current.sort(key=lambda card: (-issues.LEVELS.index(card['level']), card['id']))
+    return {'issues': current[offset:offset+limit], 'total': len(current), 'offset': offset, 'limit': limit, 'analysis': issues.state}
 
 
 @app.get('/sources')

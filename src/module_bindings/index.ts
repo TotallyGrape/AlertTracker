@@ -34,6 +34,8 @@ import {
 } from "spacetimedb";
 
 // Import all reducer arg schemas
+import EnsureReportExpiryReducer from "./ensure_report_expiry_reducer";
+import SubmitAssistanceRequestReducer from "./submit_assistance_request_reducer";
 import SubmitReportReducer from "./submit_report_reducer";
 import WithdrawReportReducer from "./withdraw_report_reducer";
 
@@ -41,6 +43,7 @@ import WithdrawReportReducer from "./withdraw_report_reducer";
 
 // Import all table schema definitions
 import IncidentRow from "./incident_table";
+import IssueCardRow from "./issue_card_table";
 import MyReportsRow from "./my_reports_table";
 import SourceHealthRow from "./source_health_table";
 
@@ -62,6 +65,17 @@ const tablesSchema = __schema({
       { name: 'incident_id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, IncidentRow),
+  issueCard: __table({
+    name: 'issue_card',
+    indexes: [
+      { accessor: 'id', name: 'issue_card_id_idx_btree', algorithm: 'btree', columns: [
+        'id',
+      ] },
+    ],
+    constraints: [
+      { name: 'issue_card_id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, IssueCardRow),
   sourceHealth: __table({
     name: 'source_health',
     indexes: [
@@ -84,6 +98,8 @@ const tablesSchema = __schema({
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
+  __reducerSchema("ensure_report_expiry", EnsureReportExpiryReducer),
+  __reducerSchema("submit_assistance_request", SubmitAssistanceRequestReducer),
   __reducerSchema("submit_report", SubmitReportReducer),
   __reducerSchema("withdraw_report", WithdrawReportReducer),
 );

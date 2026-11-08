@@ -1,52 +1,43 @@
-# Texas Response
+# Rally Point
 
-A multi-hazard disaster-assistance app for Greater Dallas / Dallas–Fort Worth, built for HackUTD.
+**Where Dallas comes together.**
 
-It aims to turn scattered alerts into coordinated help. A resident's request should be acknowledged, assigned, followed up and resolved, with a shared record of progress. Public hazard feeds supply the context, NVIDIA Nemotron investigates emerging incidents, and SpacetimeDB keeps residents, coordinators and responders in sync.
+A multi-hazard disaster-assistance workspace for Greater Dallas / Dallas–Fort Worth, built for HackUTD. It turns scattered public alerts into a shared, live picture, and helps make sure a resident's request is seen, assessed and followed up instead of overlooked.
 
-> **Not a 911 replacement.** This is a hackathon prototype. In an emergency, call 911. Any simulated residents or teams in a demo are labeled as simulated and do not represent real agencies.
+> **Not a 911 replacement.** This is a hackathon prototype. In an emergency, call 911. Requests are unverified and are not dispatched to emergency services. Any simulated residents or teams in a demo are labeled as simulated and do not represent real agencies.
 
-## Status
+## What it does
 
 | Area | State |
 | --- | --- |
-| Resident, Coordinator and Responder tabs | Built: shared shell; resident requests supported, coordinator/responder workflows remain placeholders |
-| Interactive DFW map | Built: MapLibre GL JS, OpenFreeMap basemap, Dallas city-limits outline |
-| Spacetime connection | Maincloud subscriptions and secure Python ingestion configured |
-| Backend module | Feed tables, source health, private resident requests and owner-checked reducers |
-| Requests, assignments, responder availability | Resident submission/withdrawal built; assignments and availability not built |
-| Hazard feed ingestion and map layers | Python collectors, cached feeds, map layers, source freshness and rule-based priority |
-| Nemotron | Optional cached summaries and validated priority decisions; falls back to source text/rules |
-| Geocoding | Cached Dallas GIS block/intersection matching for police calls; approximate locations labeled |
+| Live hazard map | 15 public feeds collected centrally, shown as layered pins and areas with source health and freshness |
+| Priority 1–10 | Every alert and incident is scored by explainable rules; Nemotron can refine the score with guardrails |
+| AI summaries | Optional Nemotron headlines and summaries for alerts, storm reports and police call codes |
+| Police call locations | Street text geocoded with the City of Dallas locator; approximate locations are labeled |
+| Resident requests | Structured, private requests with optional AI assessment, 24-hour expiry and withdrawal ([details](RESIDENT_REPORTING.md)) |
+| Regional issues | Evidence-bounded issue cards synthesized from public feed data |
+| Coordinator and Responder tabs | Shell and placeholders; assignments and availability are not built yet |
 | Production sign-in, notifications, routing | Not built |
 
-## Stack
+## How it fits together
 
-| Layer | Choice |
-| --- | --- |
-| Frontend | React 18, TypeScript, Vite |
-| Map | MapLibre GL JS with OpenFreeMap tiles (no key) |
-| Backend, database and live sync | SpacetimeDB 2.14 TypeScript module |
-| External API calls | Separate Python FastAPI service with background collectors |
-| AI | Optional Nemotron background worker inside FastAPI using an OpenAI-compatible remote endpoint |
+```text
+Public feeds ──► FastAPI collector (backend/) ──► private HTTPS ingest ──► SpacetimeDB on Maincloud ──► React app (live subscriptions)
+                  • polls 15 sources on schedules           (secret header)          • incident, source_health,
+                  • geocodes police calls                                              issue_card (public)
+                  • rule priority + optional Nemotron                                  • resident_report (private,
+                  • caches to backend/.cache                                             owner-only view)
+```
 
-FastAPI collects and enriches feeds centrally, then synchronizes them into Maincloud. React subscribes directly to Spacetime for live updates. Feed collection, geocoding, AI and synchronization run inside the same Python service; they do not require separate local workers.
+- **FastAPI** fetches each feed once for everyone, enriches records (water risk, priority, geocoding, AI) and keeps a read-only REST API on port 8000.
+- **SpacetimeDB** stores the shared state and pushes changes to every open browser. Residents' requests stay in a private table; each person sees only their own through the `my_reports` view.
+- **React** subscribes to Spacetime directly. Browsers never call the hazard APIs.
 
 ## Quick start
 
-Requires Node `^22.12.0` or `>=24.0.0`.
+Requires Node `^22.12.0` or `>=24.0.0` and Python 3.11+.
 
-### Windows: launch the whole app
-
-Double-click **`start-app.bat`**, or run it from any folder:
-
-```bat
-start-app.bat
-```
-
-This starts FastAPI on **http://127.0.0.1:8000** and Vite on **http://localhost:5173/** in the background. Open the frontend URL after startup. Logs are written to `.logs/backend.out.log`, `.logs/backend.err.log`, `.logs/frontend.out.log` and `.logs/frontend.err.log`. It checks dependencies, reuses services already running at those addresses, and does not install packages, overwrite configuration or restart existing processes. Run `start-app.bat -CheckOnly` to validate setup without launching anything.
-
-First-time dependencies:
+First-time setup, from the repository root:
 
 ```powershell
 npm install
@@ -54,119 +45,180 @@ python -m venv backend/.venv
 backend/.venv/Scripts/python.exe -m pip install -r backend/requirements.txt
 ```
 
-FastAPI starts the feed collectors, cached police geocoder, Spacetime synchronization, and optional Nemotron worker internally. Maincloud is hosted, so no local Spacetime server is needed for the current configuration. The configured NVIDIA/NIM endpoint must be reachable for AI processing; the launcher does not provision a remote GPU or inference server. Settings remain in `.env.local` and `backend/.env`; see [SPACETIME_INTEGRATION.md](SPACETIME_INTEGRATION.md) and [backend/README.md](backend/README.md). Missing AI credentials leave the optional worker disabled.
+Then get the two private config files from a teammate (they are gitignored): `.env.local` (public Spacetime host and database name) and `backend/.env` (ingest URL and secret, optional API keys). See [Configuration](#configuration).
 
-To stop a background service, use Task Manager with the PID printed at startup. Stop both services before relaunching when you need backend changes loaded.
+### Windows: launch everything
 
-### Frontend only
+Double-click **`start-app.bat`**, or run it from a terminal:
 
-```sh
-npm install
+```bat
+start-app.bat
+```
+
+It starts FastAPI on **http://127.0.0.1:8000** and Vite on **http://localhost:5173/** in the background, reuses services already running at those addresses, and writes logs to `.logs/`. It does not install packages, overwrite configuration or restart running processes. `start-app.bat -CheckOnly` validates setup without launching. To stop a service, end its PID (printed at startup) in Task Manager; stop both before relaunching to load backend changes.
+
+### Manually
+
+```powershell
+# Terminal 1: feed collector, geocoder, Spacetime sync and optional AI
+cd backend
+.venv/Scripts/python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+
+# Terminal 2: React
 npm run dev
 ```
 
-Open the URL Vite prints (normally http://localhost:5173/). The frontend runs without a database. The basemap needs an internet connection.
+### Frontend only
 
-```sh
-npm run build
-```
+`npm run dev` works without a database or collector when `VITE_SPACETIMEDB_ENABLED` is not `true`; you get the shell and basemap only. The basemap and fonts need an internet connection. `npm run build` type-checks and builds into `dist/`.
 
-`npm run build` type-checks and builds the frontend into `dist/`.
+## Configuration
 
-## Connecting the backend
+All `.env` files except `.env.example` are gitignored. Never put secrets in `VITE_` variables: the browser can read them.
 
-You need the [SpacetimeDB CLI](https://spacetimedb.com/install) for these steps.
-
-1. Install module dependencies: `npm install --prefix spacetimedb`
-2. Add tables, reducers and procedures in `spacetimedb/src/index.ts`.
-3. Regenerate client bindings after every schema change: `npm run spacetime:generate`
-4. Publish locally with `npm run spacetime:publish:local` (start a local server first with `spacetime start`), or to Maincloud with `npm run spacetime:publish`.
-5. In `.env.local`, set `VITE_SPACETIMEDB_ENABLED=true` plus the host and database name, then restart Vite. See `.env.example`.
-
-`VITE_` variables are visible in the browser. Put only public settings there.
-
-## API keys
-
-Keys live in the Spacetime database's private environment, never in code or the frontend.
-
-- `spacetimedb/src/index.ts` declares each key under `env`. Procedures read them as `ctx.env.NVIDIA_API_KEY` and so on.
-- Every key is optional. A procedure should mark its source "missing key" when its value is `undefined`.
-- Copy `spacetimedb/.env.example` to `spacetimedb/.env` and fill in your keys. All `.env` files except `.env.example` are gitignored.
-- Values are supplied when publishing. Run `spacetime publish --help` to find the flag for environment values in your CLI version.
-- Never return keys to clients, pass them as reducer arguments, log them, or store them in table rows.
-- Share keys through a password manager, not git or chat.
-
-Sign-ups, from most open to least:
-
-| Service | Needed for | Access |
+| File | Holds | Example |
 | --- | --- | --- |
-| [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/api/area/) | Satellite heat detections | Free `MAP_KEY` |
-| [USGS Water Data](https://api.waterdata.usgs.gov/signup) | Higher request limits (optional) | Free |
-| [Socrata app token](https://dev.socrata.com/docs/app-tokens.html) | Dallas Open Data request pool (optional) | Free |
-| [NVIDIA API](https://docs.api.nvidia.com/nim/reference/nvidia-nemotron-3-super-120b-a12b-infer) | Nemotron | Account required |
-| [AirNow](https://docs.airnowapi.org/webservices) | Air quality | Account required |
-| [ERCOT Public API](https://developer.ercot.com/applications/pubapi/ERCOT%20Public%20API%20Registration%20and%20Authentication/) | Official grid data (optional) | Key plus login token |
-| [DART](https://dart.developer.azure-api.net/) | Realtime transit | Portal sign-in and subscription |
-| [DriveTexas](https://api.drivetexas.org/api-docs) | Road closures | Approval timeline unknown; request early |
+| `.env.local` | Public frontend settings | `VITE_SPACETIMEDB_ENABLED`, `VITE_SPACETIMEDB_HOST`, `VITE_SPACETIMEDB_DB_NAME` (see `.env.example`) |
+| `backend/.env` | Collector settings and private keys | `SPACETIME_INGEST_URL`, `SPACETIME_INGEST_SECRET`, `NVIDIA_API_KEY`, `NVIDIA_BASE_URL`, `NEMOTRON_MODEL`, `TOMTOM_API_KEY`, `BBOX`, `ENABLED_SOURCES` (see `backend/.env.example`) |
+| Spacetime module environment | Private database values set at publish time | `INGEST_SECRET` must match the collector's `SPACETIME_INGEST_SECRET`; other declared keys are listed in `spacetimedb/.env.example` |
+
+**Nemotron:** put a hosted key from build.nvidia.com (starts with `nvapi-`) in `backend/.env` as `NVIDIA_API_KEY`, then restart the collector. A Brev key (`bak-…`) manages Brev machines and does not work with the hosted API; to self-host Nemotron on Brev, point `NVIDIA_BASE_URL` at that endpoint instead. With no working key the app runs on rule-based priority and original feed text. `/health` → `nemotron` shows the worker's status.
+
+API sign-ups, from most open to least: [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/api/area/) (free `MAP_KEY`), [USGS Water Data](https://api.waterdata.usgs.gov/signup) (optional, higher limits), [Socrata app token](https://dev.socrata.com/docs/app-tokens.html) (optional), [NVIDIA](https://build.nvidia.com/) (Nemotron), [TomTom](https://developer.tomtom.com/) (traffic incidents), [AirNow](https://docs.airnowapi.org/webservices), [ERCOT](https://developer.ercot.com/applications/pubapi/ERCOT%20Public%20API%20Registration%20and%20Authentication/) (optional), [DART](https://dart.developer.azure-api.net/), [DriveTexas](https://api.drivetexas.org/api-docs) (approval time unknown; request early). Share keys through a password manager, not git or chat.
 
 ## Data sources
 
-Planned feeds, none integrated yet:
+All 15 adapters below were healthy on the running collector on November 8, 2026 (none stale). Zero records from a source usually means nothing is happening in the region, not a failure; check `/sources`.
 
-- **Weather and alerts:** NWS Alerts, NWS forecasts and observations, SPC outlooks, NEXRAD radar tiles
-- **Water:** USGS gauges, NOAA NWPS river forecasts, TWDB reservoirs
-- **Roads and transit:** DriveTexas, DART
-- **Local incidents:** Dallas Police Active Calls, Dallas Fire-Rescue active calls (best-effort, undocumented file), Dallas 311, Iowa Environmental Mesonet storm reports
-- **Outages:** ORNL ODIN, ERCOT grid status, IODA
-- **Fire, smoke and air:** NASA FIRMS, NIFC WFIGS, NOAA HMS smoke, AirNow, US Drought Monitor
-- **Other hazards and reference:** USGS earthquakes, FEMA shelters, OpenFEMA declarations, National Inventory of Dams, EPA facilities
+| Adapter | Source | Poll | Key |
+| --- | --- | --- | --- |
+| `nws_alerts` | [NWS active alerts](https://www.weather.gov/documentation/services-web-alerts), Texas, filtered to the region; zone shapes fill missing geometry | 60 s | No, User-Agent |
+| `nws_weather` | [NWS](https://www.weather.gov/documentation/services-web-api) forecast for central Dallas | 15 min | No, User-Agent |
+| `nwps` | [NOAA NWPS](https://api.water.noaa.gov/nwps/v1/docs/) river status and flood thresholds (Trinity at Dallas by default, `NWPS_GAUGES`) | 5 min | No |
+| `usgs_water` | [USGS Water Data](https://api.waterdata.usgs.gov/docs/ogcapi/) latest gauge height and streamflow | 5 min | No |
+| `dallas_police` | [Dallas Police active calls](https://www.dallasopendata.com/Public-Safety/Dallas-Police-Active-Calls/9fxf-t2tr/about_data), geocoded with the City of Dallas street locator | 2 min | No |
+| `dallas_311` | [Dallas 311 service requests](https://www.dallasopendata.com/d/d7e7-envw), hazard-related types only (flooding, drainage, water mains, downed trees, signals) | 1 h | No |
+| `iem` | [Iowa Environmental Mesonet](https://mesonet.agron.iastate.edu/) preliminary NWS storm reports, Fort Worth office, last 24 h | 5 min | No |
+| `tomtom` | [TomTom](https://developer.tomtom.com/) traffic incidents across DFW (two requests per cycle) | 15 min (`TOMTOM_POLL_SECONDS`, min 5 min) | `TOMTOM_API_KEY` |
+| `nifc` | [NIFC WFIGS](https://data-nifc.opendata.arcgis.com/) current wildfire perimeters | 10 min | No |
+| `earthquakes` | [USGS earthquakes](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php), past day | 60 s | No |
+| `eonet` | [NASA EONET](https://eonet.gsfc.nasa.gov/) natural events | 30 min | No |
+| `fema_shelters` | [FEMA open shelters](https://gis.fema.gov/arcgis/rest/services/NSS/OpenShelters/FeatureServer) | 20 min | No |
+| `overpass` | OpenStreetMap fire, police, hospital, pharmacy, ambulance and shelter locations via [Overpass](https://overpass-api.de/) | 24 h | No |
+| `dallas_gis` | [City of Dallas](https://gis.dallascityhall.com/arcgis/rest/services/Basemap/CityLimits/MapServer/0) city limits | 24 h | No |
+| `openfreemap` | [OpenFreeMap](https://openfreemap.org/) style availability (the browser loads the tiles itself) | 24 h | No |
 
-`PROJECT_HANDOFF.txt` lists every source with its limitations. The team's API reference doc has endpoints, test results and traps for each feed.
+Limit or switch adapters with `ENABLED_SOURCES` in `backend/.env`.
 
-## Data rules
+### Collector endpoints
 
-These apply to every feature:
+The collector serves read-only JSON on http://127.0.0.1:8000 (interactive docs at `/docs` and `/redoc`, spec at `/openapi.json`). The React app reads from Spacetime, not from these.
 
-- Label each record as observed, reported, forecast or inferred, and show when it was updated.
-- No data means unknown, not safe.
-- A reported hazard doesn't prove someone needs help, and a disappearing call doesn't prove it was resolved.
-- A base-to-scene driving estimate is never an emergency response ETA.
-- Resident locations, contact details, medical and accessibility needs, and responder movement stay private. Expose them only through authorized views.
-- A human coordinator approves consequential recommendations and assignments. Nemotron proposes; it doesn't dispatch.
-- Text from external feeds is untrusted data, never instructions for the AI.
+| Endpoint | Returns |
+| --- | --- |
+| `/pins` | Records with coordinates, plus `unlocated` ones; filters `source`, `category`, `kind`, `include_stale`, `limit`, `offset` |
+| `/geojson` | Located records as a GeoJSON FeatureCollection |
+| `/issues` | Regional issue cards synthesized from public feed data |
+| `/sources` | Each adapter's status, last success, age, interval, stale flag, record count and error |
+| `/health` | Service status plus `spacetime_sync`, `nemotron`, `resident_ai` and `issue_analysis` worker status |
+| `/boundaries` | Dallas city limits as GeoJSON |
+| `/map-config` | Basemap style, default center, region box and attribution |
+
+Researched but not integrated: DriveTexas, AirNow, NASA FIRMS, DART realtime, ORNL ODIN, ERCOT grid status, IODA, NOAA HMS smoke, Dallas Fire-Rescue active calls, radar tiles. [PROJECT_HANDOFF.txt](PROJECT_HANDOFF.txt) and [API_READINESS.md](API_READINESS.md) record each source's limits and test results.
+
+## Priority and AI
+
+- **Rules (`backend/app/priority.py`):** every alert and incident gets a 1–10 score (10 = most urgent danger) with listed reasons, from fields such as NWS severity/urgency/certainty, storm size and remarks, Dallas police priority and call type, fire acres and containment, and earthquake magnitude. Facilities, shelters and readings are not scored.
+- **Nemotron (`backend/app/nemotron.py`):** with a working key, Nemotron receives the rule guidelines and the record, starts from the rules score, and can raise it for clearly critical factors the rules don't list. A raise of 2 or more must quote the record verbatim; lowering is capped at 2; invalid answers keep the rules score.
+- **Summaries:** plain-language headlines and summaries are validated (no invented numbers, links or advice). Official NWS instructions are always shown verbatim.
+
+Details and guardrails: [backend/README.md](backend/README.md). Resident AI assessment: [RESIDENT_REPORTING.md](RESIDENT_REPORTING.md).
+
+## Design system
+
+The UI uses a reusable "liquid glass" system with a Frutiger Aero palette, built to feel like a static page: no looping animations and no live blur by default.
+
+- `src/theme/glass.css`: tokens (color, glass material, radii, spacing, motion, fonts), the static `.aurora` backdrop, surfaces (`.glass`, `.glass--strong`, `.glass--subtle`, `.glass--tint`), controls (`.glass-button`, `.glass-segmented`, `.glass-chip`, `.glass-input`/`.glass-field`, `.glass-badge`, `.glass-dot`) and helpers. Costly effects are opt-in: `.glass--frosted` (live blur), `.aurora--animated`, `.aurora--grain`.
+- `src/theme/aero.css`: the sky/aqua/lime palette and glossy finishes. Remove its `@import` in `src/styles.css` to return to the default teal glass.
+- Fonts: **Jua** for headings and the brand, **Nanum Gothic** for labels, tabs and buttons, **Open Sans** for body text (`--font-display`, `--font-label`, `--font-sans`).
+- Light and dark mode follow the system setting; force one with `data-theme="light"` or `"dark"` on `<html>`.
+
+## Testing
+
+```powershell
+# Backend unit tests (mocked network)
+cd backend; .venv/Scripts/python.exe -m pytest -q
+
+# One live fetch per enabled feed, without touching the running service's cache
+cd backend; .venv/Scripts/python.exe smoke_check.py
+
+# Spacetime module tests
+cd spacetimedb; npx vitest run
+
+# Frontend type-check and build
+npm run build
+```
+
+`test/check_endpoints.py` checks every collector endpoint against a running API and prints a PASS/WARN/FAIL report that is safe to share: `backend/.venv/Scripts/python.exe test/check_endpoints.py`. The `test/` folder is gitignored for local checks.
+
+## Changing the Spacetime module
+
+Requires the [SpacetimeDB CLI](https://spacetimedb.com/install) and the database owner's login.
+
+1. `npm install --prefix spacetimedb`
+2. Edit `spacetimedb/src/index.ts` (tables, reducers, views, HTTP routes).
+3. Regenerate bindings after every schema change: `npm run spacetime:generate`
+4. Publish: `npm run spacetime:publish` (Maincloud) or `npm run spacetime:publish:local` (after `spacetime start`).
+
+Database `texas-response-zl8x2` runs on Maincloud. Ingestion, routes and secret rotation are documented in [SPACETIME_INTEGRATION.md](SPACETIME_INTEGRATION.md).
 
 ## Project layout
 
 ```text
 src/
-  App.tsx                    Shell and tab navigation
-  main.tsx                   Entry point and optional Spacetime provider
-  screens/                   Resident, Coordinator and Responder screens
-  components/DallasMap.tsx   Shared MapLibre map and controls
-  components/WorkspaceParts.tsx  Shared headings and empty states
-  module_bindings/           Generated Spacetime client bindings (do not edit)
-  styles.css                 Responsive styling
-spacetimedb/
-  src/index.ts               Backend module: schema, env declarations, future logic
-  .env.example               Backend key names
-public/data/
-  dallas-city-limits.geojson Dallas city-limits snapshot (see its README)
-PROJECT_HANDOFF.txt          Goals, scope, sources and build order
-CLAUDE.md / AGENTS.md        SpacetimeDB rules for coding agents
+  App.tsx, main.tsx            Shell, tabs, optional Spacetime provider
+  screens/                     Resident, Coordinator and Responder screens
+  components/LiveMap.tsx       Spacetime subscriptions, layer toggles, feed status
+  components/DallasMap.tsx     MapLibre map, pin styling and popups
+  components/ResidentReports.tsx  Resident request form and history
+  theme/glass.css, aero.css    Reusable design system and palette
+  module_bindings/             Generated Spacetime bindings (do not edit)
+spacetimedb/src/index.ts       Tables, reducers, views, HTTP ingest routes, expiry schedule
+backend/app/
+  main.py                      Collector, adapters, REST endpoints
+  priority.py, nemotron.py     Rule priority, AI summaries and priority decisions
+  resident_ai.py, issues.py    Private resident assessments, regional issue cards
+  extra_feeds.py, tomtom.py    311, EONET and TomTom adapters
+  spacetime_sync.py, water_risk.py  Ingest bridge, gauge flood assessment
+backend/tests/                 Backend unit tests
+scripts/start-services.ps1     Used by start-app.bat
+public/data/                   Dallas city-limits snapshot
+test/                          Local endpoint checker (gitignored)
 ```
+
+## Data rules
+
+- Label records as observed, reported, forecast or inferred, and show when they were updated.
+- No data means unknown, not safe. A low priority score never means an area is safe.
+- A reported hazard doesn't prove someone needs help, and a disappearing call doesn't prove it was resolved.
+- A driving estimate is never an emergency response ETA.
+- Resident locations, contact details, medical and accessibility needs, and responder movement stay private.
+- A human coordinator approves consequential recommendations and assignments. Nemotron proposes; it doesn't dispatch.
+- Text from external feeds is untrusted data, never instructions for the AI.
+
+## More documentation
+
+- [SPACETIME_INTEGRATION.md](SPACETIME_INTEGRATION.md): Maincloud database, ingestion, subscriptions, secrets
+- [backend/README.md](backend/README.md): collector endpoints, adapters, caching, geocoding, priority and Nemotron
+- [RESIDENT_REPORTING.md](RESIDENT_REPORTING.md): resident requests, privacy, expiry and AI assessment
+- [API_READINESS.md](API_READINESS.md): anonymous API test results
+- [PROJECT_HANDOFF.txt](PROJECT_HANDOFF.txt): goals, scope, sources and build order
+- [CLAUDE.md](CLAUDE.md) / [AGENTS.md](AGENTS.md): SpacetimeDB rules for coding agents
 
 ## Attribution
 
-Basemap © [OpenFreeMap](https://openfreemap.org/) and © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. City limits from City of Dallas GIS Services. Keep provider attribution visible as new layers are added.
+Basemap © [OpenFreeMap](https://openfreemap.org/) and © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. City limits from City of Dallas GIS Services. Feed data belongs to its providers; keep attribution visible as layers are added. Fonts from Google Fonts.
 
 ## License
 
 [Apache License 2.0](LICENSE).
-
-## Separate disaster-feed API
-
-The Python FastAPI service lives in backend/. See [backend/README.md](backend/README.md) for setup, endpoints, source coverage and the future frontend connection contract. It runs on port 8000; the frontend remains independent on port 5173.
-
-
-Spacetime integration is now configured: see [SPACETIME_INTEGRATION.md](SPACETIME_INTEGRATION.md) for Maincloud, ingestion, live map subscriptions, private resident requests and startup instructions.
-

@@ -1,5 +1,46 @@
 # Dallas Disaster Feed API
 
+## TomTom traffic added
+
+`tomtom` is now a backend source (15 enabled sources by default). Set `TOMTOM_API_KEY` in the ignored `backend/.env`. `TOMTOM_POLL_SECONDS` defaults to 900 (15 minutes), minimum 300. Requests use TomTom Traffic Incident Details v5, current incidents only, returning reported crashes, dangerous road conditions, congestion, lane/road closures, roadworks and other provider categories. The configured DFW rectangle exceeds the 10,000 km² request maximum, so the adapter makes two smaller requests per cycle and deduplicates stable provider IDs. It preserves supplied LineString/Point geometry, selects a representative location for map pins, retains event text and timing, and expires records no later than one hour after acquisition or the provider's earlier end time. Future/ended events are excluded. These are traffic-provider reports, not confirmed emergencies. Copyright attribution is included in metadata and description.
+
+Inspect `GET /pins?source=tomtom`, `GET /geojson?source=tomtom` and `/sources`. Source/status data also synchronize into Maincloud. Errors expose HTTP codes or exception types without exposing credential-bearing request URLs. Missing keys fail this source clearly while other feeds continue.
+
+The first live test returned 840 located records. At default settings, two requests every 15 minutes consume approximately 192 requests/day. The currently advertised free allowance of 2,500 incident-detail requests/month would last roughly 13 continuously running days at that rate (additional tests, restarts, keys/apps and account billing settings can affect usage). Five-minute polling uses about 576/day. This code does not monitor your account allowance or guarantee a hard billing cap; review TomTom account limits. See [provider documentation](https://docs.tomtom.com/traffic-api/documentation/tomtom-maps/v1/traffic-incidents/incident-details) and [pricing](https://docs.tomtom.com/pricing).
+
+No frontend source was changed. Dedicated traffic filters, road-line rendering, the dynamic source counter, congestion-versus-danger presentation, and additional attribution styling remain deferred. Existing generic subscriptions may already receive these rows. FIRMS and AirNow remain blocked by missing keys; the historical skipped-source section below is superseded for TomTom only.
+
+## Supplemental feeds added November 7, 2026
+
+The backend now includes two additional anonymous sources by default (14 total):
+
+| Source | Polling | What is included |
+| --- | --- | --- |
+| `dallas_311` | Hourly | Open Dallas infrastructure-hazard reports created within the past seven days: flooding/drainage, problematic traffic signals, water-main leaks/breaks, sewer issues and fallen-tree types when present. Closed/cancelled/resolved requests, utility line-location work, planned modifications, new signal requests and project inquiries are excluded. |
+| `eonet` | Every 30 minutes | Open NASA EONET natural events with published geometry in the last 14 days, filtered to the configured DFW rectangle. Uses each event's latest geometry, not an older local point from a storm that moved away. |
+
+Inspect them with `GET /pins?source=dallas_311`, `GET /pins?source=eonet`, `GET /geojson?source=dallas_311` and `GET /sources`. Existing JSON fields remain compatible. Both feeds also synchronize into the existing Spacetime incident and source-health tables. No schema/binding changes or frontend changes were made. If `ENABLED_SOURCES` is explicitly set in your environment, add the new IDs to that list to enable them.
+
+Dallas 311 is **not live dispatch**. At verification, its newest published request was from approximately 03:00 Dallas time on November 7; the API could therefore lag by hours. Pins represent reported infrastructure issues, not confirmed disasters or requests for emergency dispatch. The service interprets its floating local timestamps in America/Chicago, exposes created/updated times, and expires displayed records seven days after creation. Locations come directly from the published `lat_location` field; absent locations remain unlocated. No extra geocoder calls are made. Duplicate IDs collapse within this source; reports across sources are not merged.
+
+EONET is curated supplemental disaster information, not a complete local incident feed. Legitimate empty results are expected. Points/polygons are retained without invented danger radii, and observations expire locally after 14 days. Major events may overlap NIFC/NWS data. Original source references are retained in attributes. Both adapters bound their result/pagination size and fail the refresh rather than installing a known truncated snapshot. Provider failures preserve the prior snapshot through the existing cache/staleness behavior.
+
+Live adapter verification returned **49 Dallas 311 pins** after excluding routine work, and **0 matching EONET events**. All **44 backend tests** passed, including supplemental-feed status/date filters, Dallas timezone handling, duplicate IDs, geometry, moving-event history, empty results, upstream errors and pagination limits. Counts change as data updates.
+
+### Skipped because keys are missing
+
+As requested, these were checked and skipped without account registration or an approval wait:
+
+- TomTom traffic incidents: `TOMTOM_API_KEY` missing.
+- NASA FIRMS hotspots: `FIRMS_MAP_KEY` missing.
+- EPA AirNow: `AIRNOW_API_KEY` missing.
+
+These three adapters are **not implemented or polled** in this expansion. Adding a key alone will not enable them; a later backend task must add and verify the adapter. Their absence is recorded in `API_EXPANSION_TASKS.md`, not disguised as successful empty data in `/sources`.
+
+References: [Dallas 311 dataset](https://www.dallasopendata.com/d/d7e7-envw), [EONET v3 API](https://eonet.gsfc.nasa.gov/docs/v3). Pending frontend work is listed in `API_EXPANSION_TASKS.md`; implement only after the user authorizes it.
+
+Nemotron configuration: the local worker now uses `nvidia/nemotron-3.5-lightning-30b-a3b` when selected in `backend/.env`. It uses NVIDIA's OpenAI-compatible HTTP endpoint directly (no OpenAI SDK dependency). Summaries disable thinking; priority decisions enable thinking with a 1,024-token reasoning budget and a 4,096-token total output cap. Requests are non-streaming because the application validates the final JSON before publishing it. Reasoning text is not displayed. Existing caching, validation, rule-based fallback and rate-limit retries remain in place. Hosted trial capacity, rate limits and key expiration depend on the NVIDIA account; there is no guaranteed number of operating hours.
+
 Independent Python/FastAPI service for the Texas Response project. It collects public feeds into normalized map records for a configurable Greater Dallas rectangle. No SpacetimeDB database, AI model, API key or frontend build is required for its standalone REST endpoints.
 
 **Integration update:** the optional Spacetime bridge is now implemented and configured locally. The frontend subscribes to Maincloud rather than calling this REST API. See `../SPACETIME_INTEGRATION.md` for the current architecture, security, configuration and verification; the "Future frontend connection" section below describes the original REST-only contract. Standalone REST operation still works without Spacetime environment settings.

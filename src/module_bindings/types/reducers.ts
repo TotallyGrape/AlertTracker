@@ -6,9 +6,13 @@
 import { type Infer as __Infer } from "spacetimedb";
 
 // Import all reducer arg schemas
+import EnsureReportExpiryReducer from "../ensure_report_expiry_reducer";
+import SubmitAssistanceRequestReducer from "../submit_assistance_request_reducer";
 import SubmitReportReducer from "../submit_report_reducer";
 import WithdrawReportReducer from "../withdraw_report_reducer";
 
+export type EnsureReportExpiryParams = __Infer<typeof EnsureReportExpiryReducer>;
+export type SubmitAssistanceRequestParams = __Infer<typeof SubmitAssistanceRequestReducer>;
 export type SubmitReportParams = __Infer<typeof SubmitReportReducer>;
 export type WithdrawReportParams = __Infer<typeof WithdrawReportReducer>;
 

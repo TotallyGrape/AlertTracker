@@ -20,7 +20,7 @@ it.skipIf(!live)('Maincloud streams feeds and isolates resident reports between 
   try {
     await Promise.all([subscribe(alice), subscribe(bob)]);
     expect([...alice.db.incident.iter()].length).toBeGreaterThan(100);
-    expect([...alice.db.sourceHealth.iter()].length).toBe(12);
+    expect([...alice.db.sourceHealth.iter()].length).toBeGreaterThanOrEqual(15);
     await alice.reducers.submitReport({ name: 'Integration test — withdrawn', description: 'Automated setup verification, no assistance needed.', latitude: 32.7767, longitude: -96.7970 });
     const report = [...alice.db.myReports.iter()][0];
     expect(report).toBeDefined();
@@ -34,3 +34,32 @@ it.skipIf(!live)('Maincloud streams feeds and isolates resident reports between 
     });
   } finally { alice.disconnect(); bob.disconnect(); }
 }, 90000);
+
+it.skipIf(!live)('structured private request receives a saved Nemotron assessment', async () => {
+  const alice = await connect(), bob = await connect();
+  let reportId: bigint | undefined;
+  try {
+    await Promise.all([subscribe(alice), subscribe(bob)]);
+    await alice.reducers.submitAssistanceRequest({ name: 'SIMULATED integration test: shelter request',
+      description: 'SIMULATED DEMO ONLY. Two people need a place to stay tonight after leaving their home. No injury or immediate threat is reported.',
+      helpType: 'shelter', peopleAffected: 2, locationText: 'SIMULATED Dallas landmark', latitude: 32.7767, longitude: -96.7970 });
+    const report = [...alice.db.myReports.iter()][0];
+    reportId = report.id;
+    expect(report.peopleAffected).toBe(2);
+    expect([...bob.db.myReports.iter()]).toHaveLength(0);
+    const deadline = Date.now() + 150000;
+    while (Date.now() < deadline && !['complete', 'failed'].includes(alice.db.myReports.id.find(reportId)?.aiStatus ?? ''))
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    const saved = alice.db.myReports.id.find(reportId)!;
+    expect(saved.aiStatus).toBe('complete');
+    expect(saved.aiSummary.length).toBeGreaterThan(0);
+    expect(['low', 'medium', 'high', 'critical']).toContain(saved.aiUrgency);
+    expect(saved.aiModel).toContain('nemotron');
+    expect(saved.status).toBe('submitted');
+    expect([...bob.db.myReports.iter()]).toHaveLength(0);
+    console.log('Resident AI verified:', saved.aiStatus, saved.aiUrgency, saved.aiModel);
+  } finally {
+    if (reportId !== undefined) await alice.reducers.withdrawReport({ id: reportId }).catch(() => {});
+    alice.disconnect(); bob.disconnect();
+  }
+}, 180000);

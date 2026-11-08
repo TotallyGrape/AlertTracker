@@ -239,15 +239,23 @@ class RetryLater(Exception):
     pass
 
 
-async def call(client, base_url, key, model, payload):
-    priority = payload.get('job') == 'priority'
+async def call(client, base_url, key, model, payload, system_prompt=None):
+    priority = payload.get('job') in ['priority', 'resident', 'issue']
     body = {'model': model, 'stream': False, 'temperature': 0.2, 'max_tokens': 4096 if priority else 1024,
-            'messages': [{'role': 'system', 'content': PRIORITY_PROMPT if priority else SYSTEM_PROMPT},
+            'messages': [{'role': 'system', 'content': system_prompt or (PRIORITY_PROMPT if priority else SYSTEM_PROMPT)},
                          {'role': 'user', 'content': json.dumps(payload, ensure_ascii=False)}]}
     # Priority decisions get more reasoning; summaries stay cheap. Empty disables the NVIDIA-specific field.
     effort = (os.getenv('NEMOTRON_PRIORITY_REASONING_EFFORT', 'high') if priority else os.getenv('NEMOTRON_REASONING_EFFORT', 'low')).strip()
-    if effort:  # NVIDIA-specific; set NEMOTRON_REASONING_EFFORT= (empty) for endpoints that reject it
+    if 'nemotron-3.5-lightning' in model:
+        # Lightning uses chat-template controls, rather than reasoning_effort.
+        # Reserve tokens for the final validated JSON instead of displaying internal reasoning.
+        body['chat_template_kwargs'] = {'enable_thinking': priority and payload.get('job') != 'issue'}
+        if priority and payload.get('job') != 'issue':
+            body['reasoning_budget'] = 1024
+    elif effort:  # NVIDIA-specific; empty disables it for other OpenAI-compatible endpoints
         body['reasoning_effort'] = effort
+    if payload.get('job') == 'issue':
+        body['response_format'] = {'type': 'json_object'}
     response = await client.post(f'{base_url.rstrip("/")}/chat/completions', headers={'Authorization': f'Bearer {key}'}, json=body)
     if response.status_code in (401, 403):
         raise AuthError(f'HTTP {response.status_code}')

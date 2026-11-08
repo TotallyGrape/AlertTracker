@@ -27,6 +27,7 @@ function when(iso: unknown): string {
 }
 
 const sourceNote: Record<string, string> = {
+  resident_request: 'Your unverified assistance request — visible only to you. No help has been dispatched.',
   earthquakes: 'Measured by USGS instruments — shaking and damage are not reported here.',
   iem: 'Preliminary storm report — may be revised.',
   nifc: 'Published fire perimeter — current conditions must be verified.',
@@ -88,12 +89,17 @@ function popupContent(p: Record<string, any>): HTMLElement {
 export function DallasMap({ features = emptyFeatures }: { features?: FeatureCollection }) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
+  const activePopup = useRef<{ popup: Popup; id: string } | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [attempt, setAttempt] = useState(0);
   const dataRef = useRef(features);
   dataRef.current = features;
   useEffect(() => {
     (mapRef.current?.getSource('live-incidents') as GeoJSONSource | undefined)?.setData(features);
+    if (activePopup.current && !features.features.some(feature => String(feature.id) === activePopup.current?.id)) {
+      activePopup.current.popup.remove();
+      activePopup.current = null;
+    }
   }, [features]);
 
   useEffect(() => {
@@ -139,7 +145,7 @@ export function DallasMap({ features = emptyFeatures }: { features?: FeatureColl
         paint: { 'line-color': '#326c5b', 'line-width': 1.8, 'line-opacity': 0.85 },
       }, labelLayer);
       map.addSource('live-incidents', { type: 'geojson', data: dataRef.current });
-      const color: ExpressionSpecification = ['case', ['==', ['get', 'stale'], true], '#858585', ['==', ['get', 'kind'], 'resource'], '#326c5b', ['in', ['get', 'kind'], ['literal', ['observation', 'forecast']]], '#2874a6', ['==', ['get', 'kind'], 'warning'], '#c44635', '#c47a22'];
+      const color: ExpressionSpecification = ['case', ['==', ['get', 'stale'], true], '#858585', ['==', ['get', 'kind'], 'resident_request'], '#8253c7', ['==', ['get', 'kind'], 'resource'], '#326c5b', ['in', ['get', 'kind'], ['literal', ['observation', 'forecast']]], '#2874a6', ['==', ['get', 'kind'], 'warning'], '#c44635', '#c47a22'];
       map.addLayer({ id: 'incident-areas', type: 'fill', source: 'live-incidents', filter: ['==', ['geometry-type'], 'Polygon'], paint: { 'fill-color': [...color], 'fill-opacity': 0.16 } }, labelLayer);
       map.addLayer({ id: 'incident-outlines', type: 'line', source: 'live-incidents', filter: ['==', ['geometry-type'], 'Polygon'], paint: { 'line-color': [...color], 'line-width': 1.5 } }, labelLayer);
       map.addLayer({ id: 'incident-pins', type: 'circle', source: 'live-incidents', filter: ['==', ['geometry-type'], 'Point'], // Higher-priority pins are larger and drawn on top; unscored pins keep their old sizes.
@@ -151,7 +157,9 @@ export function DallasMap({ features = emptyFeatures }: { features?: FeatureColl
       map.on('click', 'incident-pins', event => {
         const feature = event.features?.[0];
         if (!feature || feature.geometry.type !== 'Point') return;
-        new Popup({ maxWidth: '340px' }).setLngLat(feature.geometry.coordinates as [number, number]).setDOMContent(popupContent(feature.properties ?? {})).addTo(map);
+        activePopup.current?.popup.remove();
+        const popup = new Popup({ maxWidth: '340px' }).setLngLat(feature.geometry.coordinates as [number, number]).setDOMContent(popupContent(feature.properties ?? {})).addTo(map);
+        activePopup.current = { popup, id: String(feature.id) };
       });
       map.on('mouseenter', 'incident-pins', () => { map.getCanvas().style.cursor = 'pointer'; });
       map.on('mouseleave', 'incident-pins', () => { map.getCanvas().style.cursor = ''; });
@@ -164,21 +172,23 @@ export function DallasMap({ features = emptyFeatures }: { features?: FeatureColl
     resizeObserver.observe(container.current);
     return () => {
       resizeObserver.disconnect();
+      activePopup.current?.popup.remove();
+      activePopup.current = null;
       mapRef.current = null;
       map.remove();
     };
   }, [attempt]);
 
   return (
-    <section className="map-panel" aria-label="Explore Greater Dallas">
+    <section className="map-panel glass" aria-label="Explore Greater Dallas">
       <div className="map-heading">
         <div><h2>Explore Greater Dallas</h2><p>Dallas–Fort Worth and surrounding communities</p></div>
-        <button className="map-reset" type="button" onClick={() => mapRef.current?.fitBounds(greaterDallasBounds, { padding: 28, bearing: 0, pitch: 0, duration: 700 })}>Back to DFW <span aria-hidden="true">↗</span></button>
+        <button className="map-reset glass-button glass-button--small" type="button" onClick={() => mapRef.current?.fitBounds(greaterDallasBounds, { padding: 28, bearing: 0, pitch: 0, duration: 700 })}>Back to DFW <span aria-hidden="true">↗</span></button>
       </div>
       <div className="map-frame">
         <div ref={container} className="dallas-map" />
-        {status === 'loading' && <div className="map-message" role="status">Loading map…</div>}
-        {status === 'error' && <div className="map-message map-error" role="status">Some map content could not load. Check your connection.<button type="button" onClick={() => setAttempt(value => value + 1)}>Reload map</button></div>}
+        {status === 'loading' && <div className="map-message glass--strong" role="status">Loading map…</div>}
+        {status === 'error' && <div className="map-message map-error glass--strong" role="status">Some map content could not load. Check your connection.<button type="button" onClick={() => setAttempt(value => value + 1)}>Reload map</button></div>}
       </div>
       <div className="map-caption"><span>Drag to explore · Scroll or pinch to zoom</span><span className="boundary-legend"><i aria-hidden="true" /> Dallas city limits</span></div>
     </section>

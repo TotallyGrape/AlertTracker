@@ -1,4 +1,4 @@
-import { useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { ResidentScreen } from './screens/ResidentScreen';
 import { CoordinatorScreen } from './screens/CoordinatorScreen';
 import { ResponderScreen } from './screens/ResponderScreen';
@@ -13,9 +13,18 @@ const tabs = [
 ] as const;
 
 export default function App() {
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(() => Math.max(0, tabs.findIndex(tab => `#${tab.id}` === window.location.hash)));
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const Screen = tabs[active].screen;
+  function selectTab(index: number) {
+    setActive(index);
+    window.history.replaceState(null, '', `#${tabs[index].id}`);
+  }
+  useEffect(() => {
+    const syncHash = () => setActive(Math.max(0, tabs.findIndex(tab => `#${tab.id}` === window.location.hash)));
+    window.addEventListener('hashchange', syncHash);
+    return () => window.removeEventListener('hashchange', syncHash);
+  }, []);
 
   function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     let next = index;
@@ -25,36 +34,39 @@ export default function App() {
     else if (event.key === 'End') next = tabs.length - 1;
     else return;
     event.preventDefault();
-    setActive(next);
+    selectTab(next);
     tabRefs.current[next]?.focus();
   }
+  const map = <div key="map">{import.meta.env.VITE_SPACETIMEDB_ENABLED === 'true' ? <LiveMap /> : <DallasMap />}</div>;
+  const panels = <div key="panels">{tabs.map((tab, index) => (
+    <section key={tab.id} id={`panel-${tab.id}`} role="tabpanel" aria-labelledby={`tab-${tab.id}`} hidden={active !== index} tabIndex={0}>
+      {active === index && <div className="glass-pop-in" key={tab.id}><Screen /></div>}
+    </section>
+  ))}</div>;
 
   return (
     <div className="app-shell">
-      <header className="site-header">
-        <div className="brand"><span className="brand-symbol" aria-hidden="true">✳</span><span>Texas<span className="brand-light">Response</span></span></div>
-        <span className="preview-badge"><span /> Workspace preview</span>
+      <div className="aurora" aria-hidden="true" />
+      <header className="site-header glass--strong">
+        <div className="brand"><span className="brand-symbol" aria-hidden="true">✳</span><span>Rally <span className="brand-light">Point</span></span></div>
+        <span className="preview-badge glass-badge"><span className="glass-dot glass-dot--live" /> Workspace preview</span>
       </header>
       <main className="workspace">
-        <div className="workspace-heading"><span className="eyebrow">DALLAS, TEXAS</span><span className="workspace-label">Community response workspace</span></div>
-        <nav className="tab-bar" role="tablist" aria-label="Workspace views">
+        <div className="workspace-heading"><span className="eyebrow">Dallas, Texas</span><span className="workspace-label">Community response workspace</span></div>
+        <nav className="tab-bar glass-segmented" role="tablist" aria-label="Workspace views"
+          style={{ '--count': tabs.length, '--index': active } as CSSProperties}>
           {tabs.map((tab, index) => (
             <button key={tab.id} ref={element => { tabRefs.current[index] = element; }}
               id={`tab-${tab.id}`} role="tab" type="button" aria-selected={active === index}
               aria-controls={`panel-${tab.id}`} tabIndex={active === index ? 0 : -1}
-              onClick={() => setActive(index)} onKeyDown={event => handleKeyDown(event, index)}>
+              onClick={() => selectTab(index)} onKeyDown={event => handleKeyDown(event, index)}>
               <span className="tab-number">0{index + 1}</span>{tab.label}
             </button>
           ))}
         </nav>
-        {import.meta.env.VITE_SPACETIMEDB_ENABLED === 'true' ? <LiveMap /> : <DallasMap />}
-        {tabs.map((tab, index) => (
-          <section key={tab.id} id={`panel-${tab.id}`} role="tabpanel" aria-labelledby={`tab-${tab.id}`} hidden={active !== index} tabIndex={0}>
-            {active === index && <Screen />}
-          </section>
-        ))}
+        {active === 2 ? [panels, map] : [map, panels]}
       </main>
-      <footer className="site-footer"><span>Built around people. Ready for what comes next.</span><span>Texas Response <span className="footer-dot">/</span> Dallas pilot</span></footer>
+      <footer className="site-footer glass--subtle"><span>Built around people. Ready for what comes next.</span><span>Rally Point <span className="footer-dot">/</span> Dallas pilot</span></footer>
     </div>
   );
 }

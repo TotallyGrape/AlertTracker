@@ -46,6 +46,36 @@ def cycle(snapshots, replies, seen):
     return asyncio.run(run())
 
 
+def test_lightning_uses_bounded_thinking_for_priority_and_direct_summaries():
+    bodies = []
+    def handler(request):
+        bodies.append(json.loads(request.content))
+        return httpx.Response(200, json={'choices': [{'message': {'content': '{}'}}]})
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            for payload in [{'job': 'priority'}, {'job': 'summary'}]:
+                await n.call(client, 'https://nvidia.test/v1', 'test-key', 'nvidia/nemotron-3.5-lightning-30b-a3b', payload)
+    asyncio.run(run())
+    assert bodies[0]['chat_template_kwargs']['enable_thinking'] is True
+    assert bodies[0]['reasoning_budget'] == 1024
+    assert bodies[1]['chat_template_kwargs']['enable_thinking'] is False
+    assert all('reasoning_effort' not in body and body['stream'] is False for body in bodies)
+
+
+def test_issue_synthesis_uses_structured_json_without_reasoning_text():
+    bodies=[]
+    def handler(request):
+        bodies.append(json.loads(request.content))
+        return httpx.Response(200,json={'choices':[{'message':{'content':'{}'}}]})
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            await n.call(client,'https://nvidia.test/v1','test-key','nvidia/nemotron-3.5-lightning-30b-a3b',{'job':'issue'},system_prompt='Structured issue assessment')
+    asyncio.run(run())
+    assert bodies[0]['response_format']=={'type':'json_object'}
+    assert bodies[0]['chat_template_kwargs']=={'enable_thinking':False}
+    assert bodies[0]['messages'][0]['content']=='Structured issue assessment'
+
+
 def test_police_code_translated_once_and_shared_by_every_call():
     snapshots = {'dallas_police': {'items': [police(1, '40/01 - Other'), police(2, '40/01 - Other', 'ELM ST'), police(3, '7X - Major Accident')]}}
     seen = []

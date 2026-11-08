@@ -26,8 +26,21 @@ export const Incident = __t.object("Incident", {
 });
 export type Incident = __Infer<typeof Incident>;
 
+export const IssueCard = __t.object("IssueCard", {
+  id: __t.string(),
+  payloadJson: __t.string(),
+  expiresAt: __t.string(),
+});
+export type IssueCard = __Infer<typeof IssueCard>;
+
 export const MyReports = __t.object("MyReports", {});
 export type MyReports = __Infer<typeof MyReports>;
+
+export const ReportExpiryTimer = __t.object("ReportExpiryTimer", {
+  scheduledId: __t.u64(),
+  scheduledAt: __t.scheduleAt(),
+});
+export type ReportExpiryTimer = __Infer<typeof ReportExpiryTimer>;
 
 export const ResidentReport = __t.object("ResidentReport", {
   id: __t.u64(),
@@ -38,6 +51,18 @@ export const ResidentReport = __t.object("ResidentReport", {
   longitude: __t.f64(),
   status: __t.string(),
   createdAt: __t.timestamp(),
+  helpType: __t.string(),
+  peopleAffected: __t.u32(),
+  locationText: __t.string(),
+  aiStatus: __t.string(),
+  aiSummary: __t.string(),
+  aiUrgency: __t.string(),
+  aiReasons: __t.string(),
+  aiEvidence: __t.string(),
+  aiModel: __t.string(),
+  aiAttempts: __t.u8(),
+  aiLeaseUntil: __t.u64(),
+  aiUpdatedAt: __t.string(),
 });
 export type ResidentReport = __Infer<typeof ResidentReport>;
 
