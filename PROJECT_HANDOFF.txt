@@ -1,0 +1,362 @@
+TEXAS RESPONSE - PROJECT HANDOFF
+Prepared: November 7, 2026
+Workspace: C:\Users\elijo\Documents\HackUTD
+
+1. PROJECT GOAL
+Build a useful, multi-hazard disaster-assistance coordination application for HackUTD covering all major large-scale disaster types affecting Greater Dallas / Dallas-Fort Worth. Combine public hazard and incident data with direct resident requests, use NVIDIA Nemotron to investigate emerging incidents, and use Spacetime to keep residents, coordinators, and registered response teams synchronized.
+
+Pitch: A disaster-support platform that turns scattered alerts into coordinated assistance, helping teams identify unmet needs and avoid overlooking people.
+
+This is more than a map or chatbot. The meaningful outcome is a request being identified, acknowledged, assigned, followed up, and resolved with a shared record of progress.
+
+2. GEOGRAPHIC AND HACKATHON SCOPE
+- Operational MVP: a Greater Dallas / DFW multi-hazard platform, not a flood-only application.
+- Disaster scope: severe thunderstorms, tornadoes, flash/river flooding, extreme heat, winter storms/ice/extreme cold, wildfires and smoke, major power/water/communications outages, earthquakes, major infrastructure failures, and large hazardous-material or industrial incidents.
+- Include compound disasters and cascading effects, such as a storm causing flooding, blocked roads, power outages, and transportation or medical-support needs.
+- Flooding may be one end-to-end demonstration scenario; it must not restrict the application's overall scope or data model.
+- Prioritize large-scale incidents and community impacts. Routine individual police/traffic calls are supporting evidence, not automatically disasters.
+- Public data coverage differs by hazard; hazardous-material incidents, water failures, and operational resource status may require official partner reports or verified manual entries. Do not claim complete automatic detection of every disaster.
+- Latest map scope: Greater Dallas / Dallas-Fort Worth and surrounding communities.
+- Map currently opens to DFW; pan and zoom are unrestricted at the user's request.
+- The visible official border is Dallas CITY limits, not Dallas County or a DFW metropolitan boundary.
+- A rectangular DFW viewing extent is not an official regional boundary.
+- Collect upstream river observations and relevant roads/facilities outside Dallas where they affect Dallas incidents.
+- Greater Dallas map coverage does not mean all surrounding municipalities have live police/EMS feeds.
+- Long-term ambition: expand city by city, potentially statewide and eventually beyond Texas.
+- Maximum useful data coverage is desired, but reliable integrations and a finished workflow take priority over unsupported feeds.
+- First demonstration may use clearly labeled simulated residents and teams; do not imply actual agency participation.
+
+3. USERS AND PLANNED FEATURES
+Resident:
+- Submit location, assistance category, number of affected people, transportation requirements, and optional accessibility/contact information.
+- View acknowledgment, assignment, progress, and relevant official alerts.
+
+Coordinator:
+- View incidents, source evidence, resident requests, and verified team availability.
+- Review Nemotron suggestions and approve assignments.
+- Identify unacknowledged requests, unassigned needs, stale statuses, and follow-up deadlines.
+
+Responder:
+- Confirm availability and capabilities manually.
+- Accept/decline an assignment, view supporting details, open navigation, and update progress.
+- Availability values: available, assigned/responding, unavailable, unknown.
+- Show when availability was last confirmed; treat stale information as unknown.
+
+Map:
+- Interactive basemap, incident clusters, hazard polygons, requests, facility locations, closures, and shelters.
+- Separate layers and visible source/update timestamps.
+- Estimated driving time from base; actual turn-by-turn navigation handed off to Google Maps or Apple Maps.
+- Never label a base-to-scene driving estimate as confirmed emergency response ETA.
+
+4. NEMOTRON ROLE
+Use Nemotron as an event-triggered investigator, not merely a chat box:
+1. Code detects a meaningful new or changed incident.
+2. Nemotron decides what additional evidence is needed.
+3. Application executes approved tools for weather, water, roads, requests, and resources.
+4. Nemotron combines evidence, identifies uncertainty/missing data, and proposes tasks.
+5. Save a structured result with sources and timestamps for coordinators to review.
+6. Reanalyze when relevant evidence changes, not for every viewer or every unchanged poll.
+
+Example: A flood warning overlaps three transportation requests and a road closure. Nemotron proposes contacting those households and checking a potential shelter. A human coordinator confirms the action and assigns a registered team.
+
+The challenge screenshot requires: beyond a chatbot, multi-step workflows, tool integration, and real-world applicability. This workflow is designed around those requirements; full competition eligibility still depends on the actual rules.
+
+5. SPACETIME ROLE AND TECHNICAL RULES
+Spacetime is the application backend: tables, server logic, permissions, schedules, and live client synchronization.
+- Store incidents, observations, source health, requests, evidence, analysis jobs/results, team statuses, assignments, and notifications.
+- Use transactional reducers for atomic changes and assignment conflict prevention.
+- Use subscriptions/views to update authorized clients.
+- Use procedures for outbound API and Nemotron calls; keep network I/O outside short database transactions.
+- TypeScript procedure callbacks are synchronous; use the documented ctx.http.fetch and ctx.withTx APIs.
+- Schedule collection centrally; don't make each browser poll external APIs.
+- Authenticate actions using ctx.sender, never an identity supplied by the caller.
+- Keep sensitive request/contact data private and expose authorized views.
+- Regenerate client bindings after schema changes.
+- Follow the repository AGENTS.md, installed SDK, generated bindings, and current 2.x docs.
+Current docs:
+https://spacetimedb.com/agent-setup.md
+https://spacetimedb.com/docs/intro/misconceptions/
+https://spacetimedb.com/docs/intro/zen/
+https://spacetimedb.com/docs/functions/procedures/
+
+6. STACK AND CURRENT IMPLEMENTATION
+Implemented:
+- React 18 + TypeScript + Vite.
+- Spacetime SDK 2.14.x; empty TypeScript module and matching generated bindings.
+- Three connected frontend tabs: Resident, Coordinator, Responder.
+- Shared responsive shell and static empty states, with accessible keyboard tab navigation.
+- MapLibre GL JS + OpenFreeMap live basemap.
+- Pan, zoom, compass, fullscreen, imperial scale, and Back to DFW control.
+- Dallas GIS city-limit GeoJSON snapshot with a subtle green outline, white halo, and faint fill.
+- Map persists when switching role tabs.
+- No custom geographic panning or zoom-out limits.
+
+Not implemented:
+- Application tables/reducers and live requests/assignments.
+- Published backend, authenticated roles, responder availability.
+- Incident-feed ingestion, Nemotron, notifications, geocoding, routing estimates, or incident layers.
+- A background monitoring application or automatic reports into this chat.
+
+Spacetime's React provider is prepared but disabled by default, so preview does not require a database.
+Run frontend: npm install, then npm run dev.
+Build/type-check: npm run build.
+Local preview: http://localhost:5173/
+Last changes passed production build. Earlier browser checks verified tabs, map rendering, and navigation controls. Recheck after further changes.
+
+Important source files:
+src/App.tsx
+src/main.tsx
+src/components/DallasMap.tsx
+src/components/WorkspaceParts.tsx
+src/screens/ResidentScreen.tsx
+src/screens/CoordinatorScreen.tsx
+src/screens/ResponderScreen.tsx
+src/styles.css
+spacetimedb/src/index.ts
+public/data/dallas-city-limits.geojson
+public/data/README.md
+
+Tailwind, shadcn/ui, Turf.js, SpacetimeAuth, and routing/geocoding were proposed but are not all installed or integrated. Current styling is plain CSS. Do not describe proposed packages as implemented.
+
+7. MAP / LOCATION INTEGRATIONS
+A. MapLibre GL JS - IMPLEMENTED
+Purpose: render interactive map, custom layers, clusters, and polygons. Library, not hosted data API.
+https://maplibre.org/projects/gl-js/
+
+B. OpenFreeMap - IMPLEMENTED
+Purpose: basemap vector tiles, streets, and labels. No key required for the public service; retain attribution. No uptime SLA.
+https://openfreemap.org/
+https://openfreemap.org/quick_start/
+Current style: https://tiles.openfreemap.org/styles/liberty
+
+C. Dallas GIS city-limit service - IMPLEMENTED AS LOCAL SNAPSHOT
+Purpose: official Dallas municipal boundary. Not a DFW border.
+https://gis.dallascityhall.com/arcgis/rest/services/Basemap/CityLimits/MapServer/0
+Query parameters: where=1%3D1&outFields=CITY&outSR=4326&geometryPrecision=5&f=geojson
+Snapshot downloaded November 7, 2026. Refresh when appropriate; attribution included.
+
+D. Dallas GIS reference layers - PLANNED
+Purpose: relevant administrative/service-area boundaries and available reference features.
+https://egis.dallascityhall.com/arcgis/rest/services/Crm_public/CrmLayers/MapServer
+Inspect live layer availability before relying on it.
+
+E. Geoapify Geocoding - PROPOSED
+Purpose: address search, geocoding, reverse geocoding. Requires key; check current free quota and attribution.
+https://apidocs.geoapify.com/docs/geocoding/
+https://www.geoapify.com/pricing/
+
+F. openrouteservice - PROPOSED
+Purpose: route durations and matrices between suitable bases and incidents. Requires key; verify current endpoints, plan, quotas, and traffic capabilities.
+https://openrouteservice.org/plans/
+https://giscience.github.io/openrouteservice/hosted-api-restrictions
+Do not assume disaster closures are automatically reflected.
+
+G. Google Maps / Apple Maps directions links - PLANNED
+Purpose: hand off navigation. Google Maps URLs do not need an API key. Opening an app does not automatically return its ETA to ours.
+https://developers.google.com/maps/documentation/urls/get-started
+https://developer.apple.com/documentation/mapkit/unified-map-urls
+
+H. OpenStreetMap Overpass - PROPOSED
+Purpose: fill gaps in police/fire/ambulance/hospital/pharmacy and other facility locations. Import/cache periodically, respect service limits, verify critical facilities against authoritative records.
+https://dev.overpass-api.de/overpass-doc/en/preface/commons.html
+Public endpoint: https://overpass-api.de/api/interpreter
+OSM records are not proof of completeness, capability, staffing, or availability.
+
+I. Turf.js - PROPOSED LOCAL LIBRARY, NOT AN API
+Purpose: point-in-polygon, distances, and geographic overlap calculations.
+
+8. LIVE DATA SOURCES - CORE AND NEXT PRIORITY
+The following are planned/researched, not yet integrated. Stated cadences came from provider documentation reviewed during this chat, not end-to-end latency tests. Reverify before implementation.
+
+A. National Weather Service Alerts - CORE
+Purpose: tornado, flash flood, storm, heat, winter weather, and other warnings; polygons/zones, severity, urgency, certainty, instructions.
+https://www.weather.gov/documentation/services-web-alerts
+https://api.weather.gov/alerts/active
+State filter: https://api.weather.gov/alerts/active?area=TX
+Poll about once per minute; documentation recommends no more frequently than every 30 seconds. Filter by geographic overlap with the operational region, not just text matching Dallas.
+
+B. NWS Weather API - CORE
+Purpose: station observations and forecasts, wind, temperature, humidity, and relevant weather conditions.
+https://www.weather.gov/documentation/services-web-api
+https://api.weather.gov
+Free; identifying User-Agent required. Observation timestamps matter.
+
+C. USGS modern Water Data APIs - CORE
+Purpose: river/creek levels, streamflow, recent trends, station metadata, and upstream observations.
+https://api.waterdata.usgs.gov/docs/ogcapi/
+https://api.waterdata.usgs.gov/ogcapi/v1/
+Example gauge: https://waterdata.usgs.gov/monitoring-location/USGS-08057000/
+Use continuous/latest measurements rather than daily aggregates for monitoring. Reporting/transmission timing varies; keys support higher limits. Prefer modern APIs for new code.
+
+D. DriveTexas - CORE
+Purpose: published road closures, conditions, construction, and disruptions in/around Dallas.
+https://api.drivetexas.org/api-docs
+API key required; documented five-minute refresh. Full conditions feed is broader than construction-only WZDx. Not guaranteed to cover every local street.
+
+E. Dallas Police Active Calls - CORE LOCAL SOURCE
+https://www.dallasopendata.com/Public-Safety/Dallas-Police-Active-Calls/9fxf-t2tr/about_data
+Purpose: releasable active incidents. Socrata dataset ID: 9fxf-t2tr.
+Nominal two-minute refresh; provider warns of intermittent delays. Includes calls only after officers arrive. No complete 911 coverage and no guarantee of unmet need or available crews.
+
+F. NOAA National Water Prediction Service - NEXT
+https://api.water.noaa.gov/about/api
+https://api.water.noaa.gov/nwps/v1/docs/
+Purpose: flood thresholds, observations, forecast river stages/crests, and flood impacts. Label forecasts separately from observations.
+
+G. Iowa Environmental Mesonet - NEXT
+https://mesonet.agron.iastate.edu/GIS/
+https://mesonet.agron.iastate.edu/lsr/
+Purpose: preliminary NWS reports of observed floods, wind damage, hail, tornadoes, etc. Rolling 24-hour files rebuild every five minutes. These are preliminary reports, not complete real-time ground truth.
+
+H. ORNL ODIN - NEXT
+https://ornl.opendatasoft.com/explore/assets/odin-real-time-outages-county/
+https://odin.ornl.gov/api-docs/developer-guide/introduction
+Purpose: county-level power outages. Verify participating utilities, current API/access behavior, and timestamps. Aggregates do not identify affected households.
+
+I. AirNow - NEXT
+https://docs.airnowapi.org/webservices
+https://docs.airnowapi.org/faq
+Purpose: AQI, pollutants, air-quality observations and forecasts. API key; generally hourly data. Use documented bulk products for broad ingestion instead of looping over ZIP codes.
+
+J. Dallas Area Rapid Transit - NEXT
+https://dart.developer.azure-api.net/
+Purpose: GTFS schedules/stops/routes plus realtime delays, cancellations, detours, vehicle locations, and alerts. Verify signup/subscription requirements.
+Useful for transportation assistance and residents without cars. Not an emergency dispatch feed.
+
+9. RESOURCE AND BACKGROUND SOURCES
+A. Dallas fire-station GIS - PROPOSED
+https://egis.dallascityhall.com/arcgis/rest/services/Crm_public/CrmLayers/MapServer/1
+Official station locations; verify current layer availability. Does not establish ambulance/crew availability.
+
+B. Texas DSHS EMS/Trauma map and designated facilities - PROPOSED
+https://www.dshs.texas.gov/dshs-ems-trauma-systems/ems-trauma-systems-interactive-map
+https://www.dshs.texas.gov/dshs-ems-trauma-systems/trauma-system-development/texas-trauma-facilities
+Purpose: verified facility capabilities/designations and relevant EMS reference data. May require exports rather than a straightforward API. Not live vehicle availability or bed capacity.
+
+C. CMS Provider Data - PROPOSED
+https://data.cms.gov/provider-data/about
+Purpose: hospitals, emergency-service reference information, nursing homes, and other facilities. Background directory, not live status.
+
+D. FEMA Open Shelters - NEXT
+https://gis.fema.gov/arcgis/rest/services/NSS/OpenShelters/FeatureServer
+Purpose: reported open shelter locations and attributes. Provider documents morning Red Cross synchronization and checks for FEMA database changes every 20 minutes. Source reporting can lag; verify capacity, accessibility, hours, and current acceptance before recommending travel.
+
+E. 211 National Data Platform - ACCESS DEPENDENT
+https://register.211.org/Home/FAQs
+https://register.211.org/Home/LogIntoApiPortal
+Purpose: community services, food, housing, and transportation directories. API access is authorized with contributing 211 permission. Not an unrestricted feed of caller requests.
+
+F. Census API / ACS - BACKGROUND
+https://www.census.gov/data/developers.html
+Purpose: area-level population, age, disability, language, poverty, housing, and vehicle-access estimates. Not live person-level data.
+
+G. CDC/ATSDR Social Vulnerability Index - BACKGROUND
+https://www.atsdr.cdc.gov/place-health/php/svi/svi-data-documentation-download.html
+Purpose: identify areas needing extra outreach/accessibility. Dataset downloads rather than a necessary live API.
+
+H. HHS emPOWER - BACKGROUND
+https://empowerprogram.hhs.gov/empowermap
+Purpose: aggregate electricity-dependent Medicare beneficiary estimates to combine with outage areas. Not names, individual addresses, or a complete count of all medically vulnerable residents.
+
+I. FEMA flood hazard mapping / NFHL - OPTIONAL BACKGROUND
+https://msc.fema.gov/
+Purpose: mapped flood-risk context. Verify a supported GIS service before integration. Floodplain maps are not current inundation or proof that an area outside them is safe.
+
+10. ADDITIONAL MULTI-HAZARD FEEDS
+These support the intended disaster scope. Stage their implementation according to access and build time; wildfire, air-quality, earthquake, outage, and severe-weather support are part of the product's intended scope, not a future geographic expansion.
+A. NASA FIRMS: satellite fire/heat detections.
+https://firms.modaps.eosdis.nasa.gov/content/active_fire/
+Requires registration/key. Availability after satellite overpass is not time since ignition. Thermal anomaly is not automatically a confirmed wildfire.
+
+B. NIFC WFIGS: published wildfire perimeters/attributes.
+https://data-nifc.opendata.arcgis.com/datasets/nifc%3A%3Awfigs-current-interagency-fire-perimeters/about
+Service refresh is not field-observation freshness.
+
+C. USGS earthquakes: events and available shaking fields.
+https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
+Free feeds refreshed every minute; initial information can be revised.
+
+D. IODA: regional/network internet outage signals.
+https://api.ioda.inetintel.cc.gatech.edu/v2/
+Not household connectivity status.
+
+E. NOAA MRMS: operational radar/precipitation products.
+https://mrms.nssl.noaa.gov/
+Useful for rainfall context; more processing than simple JSON feeds. Not required for first demo.
+
+F. SPC weather outlook GIS: advance severe-weather risk areas.
+https://mapservices.weather.noaa.gov/vector/rest/services/outlooks/SPC_wx_outlks/FeatureServer
+Forecast risk, not confirmation of an incident.
+
+11. SOURCES REQUIRING INVESTIGATION OR PARTNERSHIP
+- Dallas Fire-Rescue Active Incidents: https://dallascityhall.com/departments/fire-rescue/Pages/active-incidents.aspx
+  Public page reported a data-loading problem during research. Supported machine-readable access and reliability are not established.
+- Dallas local flood sensors: https://www.dallascityhall.com/departments/waterutilities/stormwater-operations/Pages/FloodplainandDrainageManagement.aspx
+  City documents local realtime gauges; API, reuse conditions, and actual data delivery need verification.
+- Dallas 311: current dataset and publication delay need verification. Non-emergency reports may help with drainage, debris, and infrastructure; do not present them as immediate rescue calls.
+- IPAWS live All-Hazards Information Feed: FEMA access agreement required. Public IPAWS archive has a 24-hour delay and is unsuitable for immediate detection.
+- Oncor/water/gas utility notices: public dashboards do not establish permission or a supported ingestion API. Need documented feeds/partnerships or verified manual updates.
+- Real dispatch/CAD, crew/ambulance availability, hospital capacity, and agency notifications require authorized partnerships. No public API establishing these was identified.
+- Optional commercial alternatives discussed: TomTom for traffic incidents, PowerOutage.us for outages, PurpleAir for air sensors. These are alternatives, not commitments; review costs/licensing/access before selecting.
+- NHC hurricane GIS, NOAA coastal tides, and tsunami feeds were discussed during nationwide research. They are not first-priority direct Dallas integrations; reconsider if scope expands.
+- Seattle/Austin/NY/Bay Area incident feeds were examples during research, not Dallas inputs.
+
+12. APP-SPECIFIC SERVICES
+- Spacetime SDK/backend: main data and workflow system.
+- SpacetimeAuth: proposed authentication provider, not integrated yet.
+- NVIDIA hosted Nemotron API: https://docs.api.nvidia.com/nim/reference/nvidia-nemotron-3-super-120b-a12b-infer
+  Hosted chat-completion endpoint: https://integrate.api.nvidia.com/v1/chat/completions
+  Example researched model: nvidia/nemotron-3-super-120b-a12b. Verify current availability, tool support, and account limits before choosing/pinning a model.
+  Keep credentials backend-only; Spacetime credits do not cover NVIDIA inference.
+- In-app notifications first; optional email/SMS provider remains unselected.
+- Capital One: user requested inclusion, but no challenge brief or concrete role/API was provided. Do not invent requirements, financial workflows, or claim qualification. Obtain the brief before designing this integration.
+- Resident reporting and responder status are features of our own backend, not public external APIs.
+
+13. PERFORMANCE AND RELIABILITY APPROACH
+- Fetch once centrally for all viewers.
+- Match polling to source update frequency and rate limits.
+- Use region/bounding-box filters, pagination, and relevant upstream areas.
+- Save source IDs, observed/event time, publication/update time, ingestion time, and source health.
+- Deduplicate records; avoid writes and AI work for unchanged data.
+- Group related records into incidents while retaining original provenance.
+- Use a bounded queue, prevent overlapping polls/analysis jobs, and retry with backoff/jitter.
+- Cache analysis per incident version. A first request may trigger one job that everyone shares; use version checks so stale results do not overwrite newer evidence.
+- Show official alerts and resident requests immediately; AI must not block the UI or request submission.
+- Keep previous data visible with stale timestamps when a feed fails.
+- Subscribe clients to relevant regions/roles rather than all statewide records.
+- Cluster map points, load detail on demand, and avoid thousands of individual HTML markers.
+- Measure collection duration, backlog, dashboard load time, AI latency, and usage/cost.
+
+14. SAFETY, PERMISSIONS, AND DATA MEANING
+- Reported hazard is not proof a specific person needs help.
+- Active dispatch is not proof of an unmet need; responders may already be on scene.
+- A disappearing call is not proof of resolution.
+- No reports means unknown, not safe, especially during connectivity outages.
+- Station location is not crew/ambulance availability.
+- Facility directory is not current capacity or opening status.
+- Use official instructions and linked sources; label observed, reported, forecast, and inferred information.
+- Human coordinators review consequential recommendations/assignments.
+- Notify registered opted-in participants; do not automatically contact police/fire/EMS without authorized integration.
+- Notification is not dispatch. Only acknowledgment/acceptance confirms participation.
+- Immediate emergencies still go through 911; the app is not a substitute.
+- Avoid public exposure of household locations, contact information, medical/accessibility needs, or responder movement.
+- Use aggregate vulnerability data to improve outreach, not infer an individual's condition or deny assistance.
+- External reports and descriptions are untrusted data, not instructions for the AI or authorization to execute tools.
+
+15. IMMEDIATE BUILD ORDER
+1. Define minimum Spacetime tables and access rules for requests, teams, assignments, and evidence.
+2. Implement resident submission -> coordinator acknowledgment/assignment -> responder acceptance/resolution.
+3. Verify synchronization in two browser windows.
+4. Add broad multi-hazard NWS alerts and weather, USGS water, DriveTexas, and Dallas police data with source-health indicators. Add outage, air-quality, wildfire, and earthquake adapters as access/time permit; show coverage status by hazard.
+5. Display real incident layers alongside the existing map/border.
+6. Add bounded Nemotron tool-based investigations and saved results using a shared incident model that supports multiple hazard types and compound incidents. Demonstrate one complete scenario without hard-coding the workflow to flooding.
+7. Add facility imports, travel estimates, and notifications.
+8. Expand sources across the full large-scale disaster scope based on verified access and demonstration value. Use hazard-specific fields/adapters with shared requests, evidence, assignments, and follow-up workflows.
+
+Success criterion: demonstrate a credible, traceable path from an emerging hazard and a resident's need to confirmed assistance and follow-up, with honest coverage and freshness labels.
+
+FASTAPI BACKEND (separate service): backend/app/main.py. Run from backend: .venv/Scripts/python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000. Frontend remains unchanged on localhost:5173. Future integration contract: GET /pins for normalized records and unlocated items; /geojson for MapLibre source; /sources for freshness; /boundaries and /map-config for geographic configuration. CORS allows localhost:5173 and 127.0.0.1:5173. Full backend setup, schemas, source coverage, limitations and connection plan: backend/README.md. No SpacetimeDB/Nemotron sync implemented in this service. All 12 listed feed/map adapters are implemented; consult /sources for live readiness, not only /health. Configuration backend/.env, example backend/.env.example; backend cache and venv ignored. PROPOSED frontend env for later only: VITE_DISASTER_API_URL=http://127.0.0.1:8000.
+
+
+SPACETIME INTEGRATION NOW IMPLEMENTED: See SPACETIME_INTEGRATION.md (supersedes earlier no-sync notes). Maincloud texas-response-zl8x2 created under logged-in account. Python bridge in backend/app/spacetime_sync.py uploads source snapshots via credential-checked HTTP route; private generated credential in ignored backend/.env and module INGEST_SECRET, never frontend. React enabled in ignored .env.local and subscribes directly to active incident/source_health and owner-filtered my_reports. LiveMap renders data; ResidentReports submits/withdraws own private requests. Existing external keys declarations preserved. Assignments, coordinator review/roles, Nemotron jobs not yet built. Start Python port8000 and Vite port5173 independently. Nine automated tests plus live privacy/subscription test verified. Full docs SPACETIME_INTEGRATION.md.
+

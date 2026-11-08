@@ -1,0 +1,261 @@
+[
+  {
+    "name": "NIFC perimeters",
+    "url": "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0/query?where=1%3D1&outFields=*&resultRecordCount=1&returnGeometry=false&f=json",
+    "status": 200,
+    "seconds": 0.53,
+    "bytes": 23530,
+    "content_type": "application/json; charset=utf-8",
+    "cors": "*",
+    "keys": [
+      "objectIdFieldName",
+      "uniqueIdField",
+      "globalIdFieldName",
+      "geometryProperties",
+      "geometryType",
+      "spatialReference",
+      "fields",
+      "exceededTransferLimit",
+      "features"
+    ],
+    "count": 1,
+    "sample": "{'objectIdFieldName': 'OBJECTID', 'uniqueIdField': {'name': 'OBJECTID', 'isSystemMaintained': True}, 'globalIdFieldName': 'GlobalID', 'geometryProperties': {'shapeAreaFieldName': 'Shape__Area', 'shapeLengthFieldName': 'Shape__Length', 'units': 'esriDecimalDegrees'}, 'geometryType': 'esriGeometryPolygon', 'spatialReference': {'wkid': 4326, 'latestWkid': 4326}, 'fields': [{'name': 'OBJECTID', 'type': 'esriFieldTypeOID', 'alias': 'OBJECTID', 'sqlType': 'sqlTypeOther', 'domain': None, 'defaultValue': None}, {'name': 'poly_SourceOID', 'type': 'esriFieldTypeInteger', 'alias': 'poly_SourceOID', 'sqlType': 'sqlTypeOther', 'domain': None, 'defaultValue': None}, {'name': 'poly_IncidentName', 'type': 'esriFieldTypeString', 'alias': 'poly_IncidentName', 'sqlType': 'sqlTypeOther', 'length': 50, 'domain': None, 'defaultValue': None}, {'name': 'poly_FeatureCategory', 'type': 'esriFieldTypeString', 'alias': 'poly_FeatureCategory', 'sqlType': 'sqlTypeOther', 'length': 50, 'domain': None, 'defaultValue': None}, {'name': 'poly_MapMethod', 'type': 'esriFieldTypeString', 'alias': 'poly_MapMethod', 'sqlType': 'sqlTypeOther', 'length': 25, 'domain': None, 'defaultValue': None}, {'name': 'poly_GISAcres', 'type': 'esriFieldTypeDouble', 'alias': 'poly_GISAcres', 'sqlType': 'sqlTypeOther', 'domain': None, 'defaultValue': None}, {'name': 'poly_DeleteThis', 'type': 'esriFieldTypeString', 'alias': 'poly_DeleteThis', 'sqlType': 'sqlTypeOther', 'length': 30, 'domain': None, 'defaultValue': None}, {'name': 'poly_FeatureAccess', 'type': 'esriFieldTypeString', 'alias': 'poly_FeatureAccess', 'sqlType': 'sqlTypeOther', 'length': 50, 'domain': None, 'defaultValue': None}, {'name': 'poly_FeatureStatus', 'type': 'esriFieldTypeString', 'alias': 'poly_FeatureStatus', 'sqlType': 'sqlTypeOther', 'length': 20, 'do"
+  },
+  {
+    "name": "USGS earthquakes",
+    "url": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson",
+    "status": 200,
+    "seconds": 0.24,
+    "bytes": 120866,
+    "content_type": "application/json; charset=utf-8",
+    "cors": "*",
+    "keys": [
+      "type",
+      "metadata",
+      "features",
+      "bbox"
+    ],
+    "count": 169,
+    "sample": "{'type': 'FeatureCollection', 'metadata': {'generated': 1794089119000, 'url': 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson', 'title': 'USGS All Earthquakes, Past Day', 'status': 200, 'api': '2.8.2', 'count': 169}, 'features': [{'type': 'Feature', 'properties': {'mag': 1.8, 'place': '61 km WNW of Cantwell, Alaska', 'time': 1794088639176, 'updated': 1794088775004, 'tz': None, 'url': 'https://earthquake.usgs.gov/earthquakes/eventpage/aka2026wcgsjs', 'detail': 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/aka2026wcgsjs.geojson', 'felt': None, 'cdi': None, 'mmi': None, 'alert': None, 'status': 'automatic', 'tsunami': 0, 'sig': 50, 'net': 'ak', 'code': 'a2026wcgsjs', 'ids': ',aka2026wcgsjs,', 'sources': ',ak,', 'types': ',origin,phase-data,', 'nst': 35, 'dmin': 0.6, 'rms': 0.6, 'gap': 41, 'magType': 'ml', 'type': 'earthquake', 'title': 'M 1.8 - 61 km WNW of Cantwell, Alaska'}, 'geometry': {'type': 'Point', 'coordinates': [-150.152, 63.509, 122.9]}, 'id': 'aka2026wcgsjs'}, {'type': 'Feature', 'properties': {'mag': 1.08, 'place': '5 km WNW of Cobb, CA', 'time': 1794087511990, 'updated': 1794087607003, 'tz': None, 'url': 'https://earthquake.usgs.gov/earthquakes/eventpage/nc75463682', 'detail': 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc75463682.geojson', 'felt': None, 'cdi': None, 'mmi': None, 'alert': None, 'status': 'automatic', 'tsunami': 0, 'sig': 18, 'net': 'nc', 'code': '75463682', 'ids': ',nc75463682,', 'sources': ',nc,', 'types': ',nearby-cities,origin,phase-data,', 'nst': 20, 'dmin': 0.006192, 'rms': 0.03, 'gap': 134, 'magType': 'md', 'type': 'earthquake', 'title': 'M 1.1 - 5 km WNW of Cobb, CA'}, 'geometry': {'type': 'Point', 'coordinates': [-122.782501220703, 38.8375015258789, 1.64999997615814]}, 'id': 'nc7546"
+  },
+  {
+    "name": "NWS alerts",
+    "url": "https://api.weather.gov/alerts/active?area=TX",
+    "status": 200,
+    "seconds": 0.26,
+    "bytes": 17009,
+    "content_type": "application/geo+json",
+    "cors": "*",
+    "keys": [
+      "@context",
+      "type",
+      "features",
+      "title",
+      "updated"
+    ],
+    "count": 3,
+    "sample": "{'@context': ['https://geojson.org/geojson-ld/geojson-context.jsonld', {'@version': '1.1', 'wx': 'https://api.weather.gov/ontology#', '@vocab': 'https://api.weather.gov/ontology#'}], 'type': 'FeatureCollection', 'features': [{'id': 'https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.8122ebe2f7767ea464106f7801d614a401041a9a.001.1', 'type': 'Feature', 'geometry': None, 'properties': {'@id': 'https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.8122ebe2f7767ea464106f7801d614a401041a9a.001.1', '@type': 'wx:Alert', 'id': 'urn:oid:2.49.0.1.840.0.8122ebe2f7767ea464106f7801d614a401041a9a.001.1', 'areaDesc': 'La Salle; McMullen; Live Oak; Bee; Goliad; Webb; Duval; Jim Wells; Inland Kleberg; Inland Nueces; Inland San Patricio; Coastal Aransas; Inland Refugio; Coastal Kleberg; Coastal Nueces; Coastal San Patricio; Aransas Islands; Coastal Refugio; Kleberg Islands; Nueces Islands', 'geocode': {'SAME': ['048283', '048311', '048297', '048025', '048175', '048479', '048131', '048249', '048273', '048355', '048409', '048007', '048391'], 'UGC': ['TXZ229', 'TXZ230', 'TXZ231', 'TXZ232', 'TXZ233', 'TXZ239', 'TXZ240', 'TXZ241', 'TXZ242', 'TXZ243', 'TXZ244', 'TXZ245', 'TXZ246', 'TXZ342', 'TXZ343', 'TXZ344', 'TXZ345', 'TXZ346', 'TXZ442', 'TXZ443']}, 'affectedZones': ['https://api.weather.gov/zones/forecast/TXZ229', 'https://api.weather.gov/zones/forecast/TXZ230', 'https://api.weather.gov/zones/forecast/TXZ231', 'https://api.weather.gov/zones/forecast/TXZ232', 'https://api.weather.gov/zones/forecast/TXZ233', 'https://api.weather.gov/zones/forecast/TXZ239', 'https://api.weather.gov/zones/forecast/TXZ240', 'https://api.weather.gov/zones/forecast/TXZ241', 'https://api.weather.gov/zones/forecast/TXZ242', 'https://api.weather.gov/zones/forecast/TXZ243', 'https://api.weather.gov/zones/forecast/TXZ"
+  },
+  {
+    "name": "NWS forecast discovery",
+    "url": "https://api.weather.gov/points/32.7767,-96.7970",
+    "status": 200,
+    "seconds": 0.29,
+    "bytes": 3915,
+    "content_type": "application/geo+json",
+    "cors": "*",
+    "keys": [
+      "@context",
+      "id",
+      "type",
+      "geometry",
+      "properties"
+    ],
+    "count": 0,
+    "sample": "{'@context': ['https://geojson.org/geojson-ld/geojson-context.jsonld', {'@version': '1.1', 'wx': 'https://api.weather.gov/ontology#', 's': 'https://schema.org/', 'geo': 'http://www.opengis.net/ont/geosparql#', 'unit': 'http://codes.wmo.int/common/unit/', '@vocab': 'https://api.weather.gov/ontology#', 'geometry': {'@id': 's:GeoCoordinates', '@type': 'geo:wktLiteral'}, 'city': 's:addressLocality', 'state': 's:addressRegion', 'distance': {'@id': 's:Distance', '@type': 's:QuantitativeValue'}, 'bearing': {'@type': 's:QuantitativeValue'}, 'value': {'@id': 's:value'}, 'unitCode': {'@id': 's:unitCode', '@type': '@id'}, 'forecastOffice': {'@type': '@id'}, 'forecastGridData': {'@type': '@id'}, 'publicZone': {'@type': '@id'}, 'county': {'@type': '@id'}}], 'id': 'https://api.weather.gov/points/32.7767,-96.797', 'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': [-96.797, 32.7767]}, 'properties': {'@id': 'https://api.weather.gov/points/32.7767,-96.797', '@type': 'wx:Point', 'cwa': 'FWD', 'type': 'land', 'forecastOffice': 'https://api.weather.gov/offices/FWD', 'gridId': 'FWD', 'gridX': 89, 'gridY': 104, 'forecast': 'https://api.weather.gov/gridpoints/FWD/89,104/forecast', 'forecastHourly': 'https://api.weather.gov/gridpoints/FWD/89,104/forecast/hourly', 'forecastGridData': 'https://api.weather.gov/gridpoints/FWD/89,104', 'observationStations': 'https://api.weather.gov/gridpoints/FWD/89,104/stations', 'relativeLocation': {'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': [-96.7665128, 32.7933334]}, 'properties': {'city': 'Dallas', 'state': 'TX', 'distance': {'unitCode': 'wmoUnit:m', 'value': 0}, 'bearing': {'unitCode': 'wmoUnit:degree_(angle)', 'value': 0}}}, 'forecastZone': 'https://api.weather.gov/zones/forecast/TXZ119', 'county': 'https://api.weather.gov/"
+  },
+  {
+    "name": "NOAA NWPS Dallas gauge",
+    "url": "https://api.water.noaa.gov/nwps/v1/gauges/dalt2",
+    "status": 200,
+    "seconds": 0.41,
+    "bytes": 77076,
+    "content_type": "application/json",
+    "cors": null,
+    "keys": [
+      "lid",
+      "usgsId",
+      "reachId",
+      "name",
+      "description",
+      "rfc",
+      "wfo",
+      "state",
+      "county",
+      "timeZone",
+      "latitude",
+      "longitude",
+      "pedts",
+      "status",
+      "flood"
+    ],
+    "count": 0,
+    "sample": "{'lid': 'DALT2', 'usgsId': '08057000', 'reachId': '942030011', 'name': 'Trinity River at Dallas', 'description': '', 'rfc': {'abbreviation': 'WGRFC', 'name': 'West Gulf River Forecast Center'}, 'wfo': {'abbreviation': 'FWD', 'name': 'Fort Worth'}, 'state': {'abbreviation': 'TX', 'name': 'Texas'}, 'county': 'Dallas', 'timeZone': 'CST6CDT', 'latitude': 32.7747222222222, 'longitude': -96.8216666666667, 'pedts': {'observed': 'HGIRG', 'forecast': 'HGIFF'}, 'status': {'observed': {'primary': 11.6, 'primaryUnit': 'ft', 'secondary': 0.414, 'secondaryUnit': 'kcfs', 'floodCategory': 'no_flooding', 'validTime': '2026-11-07T20:30:00Z'}, 'forecast': {'primary': -999, 'primaryUnit': '', 'secondary': -999, 'secondaryUnit': '', 'floodCategory': 'fcst_not_current', 'validTime': '0001-01-01T00:00:00Z'}}, 'flood': {'stageUnits': 'ft', 'flowUnits': 'cfs', 'categories': {'major': {'stage': 40, 'flow': -9999}, 'moderate': {'stage': 38, 'flow': -9999}, 'minor': {'stage': 30, 'flow': -9999}, 'action': {'stage': 29, 'flow': -9999}}, 'lro': {'minorCS': '0.1728', 'moderateCS': '0.0839', 'majorCS': '< 0.05', 'producedTime': '2026-10-28T17:12:09Z', 'interval': 'NDJ'}, 'crests': {'historic': [{'occurredTime': '1908-05-25T00:00:00Z', 'stage': 52.6, 'flow': 184000, 'preliminary': 'R', 'olddatum': False}, {'occurredTime': '1990-05-03T00:00:00Z', 'stage': 47.1, 'flow': 82300, 'preliminary': 'O', 'olddatum': False}, {'occurredTime': '1949-05-18T00:00:00Z', 'stage': 46.93, 'flow': 82500, 'preliminary': 'O', 'olddatum': False}, {'occurredTime': '1942-04-26T00:00:00Z', 'stage': 45.56, 'flow': 111000, 'preliminary': 'O', 'olddatum': False}, {'occurredTime': '1991-12-20T00:00:00Z', 'stage': 44.44, 'flow': 62200, 'preliminary': 'O', 'olddatum': False}, {'occurredTime': '1989-05-17T00:00:00Z', 'stage': 43.31, '"
+  },
+  {
+    "name": "USGS latest water",
+    "url": "https://api.waterdata.usgs.gov/ogcapi/v1/collections/latest-continuous/items?f=json&limit=3&bbox=-97.65,32.45,-96.25,33.3",
+    "status": 200,
+    "seconds": 0.59,
+    "bytes": 3787,
+    "content_type": "application/json; charset=utf-8",
+    "cors": "*",
+    "keys": [
+      "type",
+      "features",
+      "numberReturned",
+      "links",
+      "timeStamp"
+    ],
+    "count": 3,
+    "sample": "{'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'properties': {'time_series_id': 'd712262eda07459b9448cb8b6c9a6a67', 'monitoring_location_id': 'USGS-08054500', 'parameter_code': '62614', 'statistic_id': '00011', 'time': '2026-11-07T21:45:00+00:00', 'value': '532.44', 'unit_of_measure': 'ft', 'approval_status': 'Provisional', 'qualifier': None, 'last_modified': '2026-11-07T21:51:19.424473+00:00', 'method_category': None}, 'id': '01d94bc7-9fa3-4f14-b4e5-acfdd15d04a9', 'geometry': {'type': 'Point', 'coordinates': [-97.0563981440181, 32.9726239052086]}}, {'type': 'Feature', 'properties': {'time_series_id': '01eb493856f84ea69aeb6fa7f0d1d444', 'monitoring_location_id': 'USGS-08057055', 'parameter_code': '00400', 'statistic_id': '00011', 'time': '2015-02-10T05:45:00+00:00', 'value': '7.4', 'unit_of_measure': 'pH Units', 'approval_status': 'Approved', 'qualifier': None, 'last_modified': '2025-09-05T17:01:41.043677+00:00', 'method_category': None}, 'id': '020dd113-97ea-4c67-83ae-82ac50705457', 'geometry': {'type': 'Point', 'coordinates': [-96.7825527777778, 32.7521361111111]}}, {'type': 'Feature', 'properties': {'time_series_id': 'aceb685ca2514b4291cac952231c8054', 'monitoring_location_id': 'USGS-08057000', 'parameter_code': '00052', 'statistic_id': '00011', 'time': '2026-11-07T21:00:00+00:00', 'value': '54.0', 'unit_of_measure': '%', 'approval_status': 'Provisional', 'qualifier': None, 'last_modified': '2026-11-07T21:14:25.488273+00:00', 'method_category': None}, 'id': '026183da-035a-4df4-9a5f-34a333638f95', 'geometry': {'type': 'Point', 'coordinates': [-96.8219463868768, 32.7748517183903]}}], 'numberReturned': 3, 'links': [{'rel': 'next', 'href': 'https://api.waterdata.usgs.gov/ogcapi/v1/collections/latest-continuous/items?cursor=MDI2MTgzZGEtMDM1YS00ZGY0LTlhNWYt"
+  },
+  {
+    "name": "Dallas police",
+    "url": "https://www.dallasopendata.com/resource/9fxf-t2tr.json?$limit=3",
+    "status": 200,
+    "seconds": 0.43,
+    "bytes": 868,
+    "content_type": "application/json;charset=utf-8",
+    "cors": "*",
+    "keys": "array",
+    "count": 3,
+    "sample": "[{'incident_number': '26-2004124', 'division': 'Northeast', 'nature_of_call': '32 - Suspicious Person', 'priority': '2', 'date': '2026-11-07T00:00:00.000', 'time': '13:15:13', 'unit_number': 'B222', 'block': '6400', 'location': 'E Northwest Hwy', 'beat': '218', 'reporting_area': '1103', 'status': 'At Scene'}, {'incident_number': '26-2003825', 'division': 'Northeast', 'nature_of_call': '6X - Major Dist (Violence)', 'priority': '2', 'date': '2026-11-07T00:00:00.000', 'time': '13:21:24', 'unit_number': 'D211', 'block': '11600', 'location': 'Ferguson Rd', 'beat': '227', 'reporting_area': '1258', 'status': 'At Scene'}, {'incident_number': '26-2004317', 'division': 'Southeast', 'nature_of_call': 'DAEF-Dist Armed Encounter Foot', 'priority': '1', 'date': '2026-11-07T00:00:00.000', 'time': '13:53:28', 'unit_number': 'OW214', 'block': '400', 'location': 'Bissonet Ave', 'beat': '352', 'reporting_area': '2208', 'status': 'At Scene'}]"
+  },
+  {
+    "name": "IEM storm reports",
+    "url": "https://mesonet.agron.iastate.edu/geojson/lsr.php?sts=2026-11-06T00:00Z&ets=2026-11-08T00:00Z&wfo=FWD",
+    "status": 200,
+    "seconds": 0.3,
+    "bytes": 104427,
+    "content_type": "application/vnd.geo+json; charset=utf-8",
+    "cors": "*",
+    "keys": [
+      "type",
+      "features"
+    ],
+    "count": 203,
+    "sample": "{'type': 'FeatureCollection', 'features': [{'id': '0', 'type': 'Feature', 'properties': {'wfo': 'TFX', 'type': 'N', 'magf': 74.0, 'county': 'Glacier', 'typetext': 'NON-TSTM WND GST', 'state': 'MT', 'remark': None, 'city': '8 SE East Glacier Park', 'source': 'Mesonet', 'unit': 'MPH', 'valid': '2026-11-06T12:21:00Z', 'lon': -113.11, 'lat': 48.36, 'qualifier': 'M', 'product_id': '202611061400-KTFX-NWUS55-LSRTFX', 'st': 'MT', 'magnitude': '74'}, 'geometry': {'type': 'Point', 'coordinates': [-113.11, 48.36]}}, {'id': '1', 'type': 'Feature', 'properties': {'wfo': 'SEW', 'type': 'N', 'magf': 48.0, 'county': 'Skagit', 'typetext': 'NON-TSTM WND GST', 'state': 'WA', 'remark': None, 'city': '1 NE Swinomish Village', 'source': 'Mesonet', 'unit': 'MPH', 'valid': '2026-11-06T20:23:00Z', 'lon': -122.5, 'lat': 48.42, 'qualifier': 'M', 'product_id': '202611062348-KSEW-NWUS56-LSRSEW', 'st': 'WA', 'magnitude': '48'}, 'geometry': {'type': 'Point', 'coordinates': [-122.5, 48.42]}}, {'id': '2', 'type': 'Feature', 'properties': {'wfo': 'AKQ', 'type': 'F', 'magf': None, 'county': 'City of Norfolk', 'typetext': 'FLASH FLOOD', 'state': 'VA', 'remark': 'Standing water reported near the intersection of I-64 and I-264.', 'city': '2 NW Kempsville', 'source': 'Department of Hig', 'unit': None, 'valid': '2026-11-06T20:35:00Z', 'lon': -76.2, 'lat': 36.85, 'qualifier': None, 'product_id': '202611062037-KAKQ-NWUS51-LSRAKQ', 'st': 'VA', 'magnitude': ''}, 'geometry': {'type': 'Point', 'coordinates': [-76.2, 36.85]}}, {'id': '3', 'type': 'Feature', 'properties': {'wfo': 'GGW', 'type': 'N', 'magf': 63.0, 'county': 'Phillips', 'typetext': 'NON-TSTM WND GST', 'state': 'MT', 'remark': None, 'city': '10 E Zortman', 'source': 'Mesonet', 'unit': 'MPH', 'valid': '2026-11-07T11:15:00Z', 'lon': -108.32, 'lat': 47.89,"
+  },
+  {
+    "name": "FEMA shelters metadata",
+    "url": "https://gis.fema.gov/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0?f=pjson",
+    "status": 200,
+    "seconds": 0.2,
+    "bytes": 11877,
+    "content_type": "text/plain;charset=UTF-8",
+    "cors": "*",
+    "keys": [
+      "currentVersion",
+      "cimVersion",
+      "id",
+      "name",
+      "type",
+      "parentLayer",
+      "defaultVisibility",
+      "minScale",
+      "maxScale",
+      "canScaleSymbols",
+      "geometryType",
+      "description",
+      "copyrightText",
+      "editFieldsInfo",
+      "ownershipBasedAccessControlForFeatures"
+    ],
+    "count": 0,
+    "sample": "{'currentVersion': 11.5, 'cimVersion': '3.5.0', 'id': 0, 'name': 'FEMA Open Shelters', 'type': 'Feature Layer', 'parentLayer': None, 'defaultVisibility': True, 'minScale': 0, 'maxScale': 0, 'canScaleSymbols': False, 'geometryType': 'esriGeometryPoint', 'description': 'FEMA ESF6-SS formerly known as FEMA NSS.', 'copyrightText': 'FEMA, ESF6-SS', 'editFieldsInfo': None, 'ownershipBasedAccessControlForFeatures': None, 'syncCanReturnChanges': False, 'relationships': [], 'isDataVersioned': False, 'isDataArchived': False, 'infoInEstimates': ['extent', 'count'], 'isDataBranchVersioned': False, 'isDataReplicaTracked': False, 'isCoGoEnabled': False, 'modelName': 'GP_239502727', 'supportsRollbackOnFailureParameter': True, 'archivingInfo': {'supportsQueryWithHistoricMoment': False, 'startArchivingMoment': -1}, 'supportsStatistics': True, 'supportsExceedsLimitStatistics': True, 'supportsAdvancedQueries': True, 'supportsValidateSQL': True, 'supportsCoordinatesQuantization': True, 'supportsQuantizationEditMode': True, 'supportsCalculate': True, 'supportsASyncCalculate': True, 'supportsDatumTransformation': True, 'advancedQueryCapabilities': {'supportsPagination': True, 'supportsQueryWithDistance': True, 'supportsReturningQueryExtent': True, 'supportsStatistics': True, 'supportsPercentileStatistics': True, 'supportsHavingClause': True, 'supportsOrderBy': True, 'supportsDistinct': True, 'supportsCountDistinct': True, 'supportsAdvancedQueryRelated': True, 'supportsQueryRelatedPagination': True, 'supportsCurrentUserQueries': True, 'supportsFullTextSearch': True, 'fullTextSearchCapabilities': {'supportsSearchOperator': True, 'supportsOperator': False, 'supportsSqlExpressionInFullText': True}, 'fullTextSearchableFields': [], 'supportsQueryWithResultType': True, 'supportsReturningGeometryCen"
+  },
+  {
+    "name": "FEMA shelters query",
+    "url": "https://gis.fema.gov/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query?where=1%3D1&outFields=*&resultRecordCount=2&f=geojson",
+    "status": 200,
+    "seconds": 0.37,
+    "bytes": 1355,
+    "content_type": "application/geo+json;charset=UTF-8",
+    "cors": "*",
+    "keys": [
+      "type",
+      "features",
+      "exceededTransferLimit",
+      "properties"
+    ],
+    "count": 2,
+    "sample": "{'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'id': 2110504, 'geometry': {'type': 'Point', 'coordinates': [-110.49404599999997, 34.03395400000005]}, 'properties': {'objectid': 2110504, 'shelter_id': 368579, 'shelter_name': 'Cibecue Elementary School', 'address': '211 S Elm Circle', 'city': 'Cibecue', 'state': 'AZ', 'zip': '85911', 'shelter_status': 'OPEN', 'evacuation_capacity': None, 'post_impact_capacity': None, 'total_population': 27, 'hours_open': None, 'hours_close': None, 'org_name': 'ARC Partner', 'org_id': 126165, 'match_type': None, 'subfacility_code': 'GENPOPSHEL', 'ada_compliant': None, 'pet_accommodations_code': None, 'wheelchair_accessible': None, 'latitude': None, 'longitude': None}}, {'type': 'Feature', 'id': 2110505, 'geometry': {'type': 'Point', 'coordinates': [-108.10477939999998, 36.69750990000006]}, 'properties': {'objectid': 2110505, 'shelter_id': 368580, 'shelter_name': 'McGee Park', 'address': '41 Road 5568', 'city': 'Farmington', 'state': 'NM', 'zip': '87401', 'shelter_status': 'OPEN', 'evacuation_capacity': None, 'post_impact_capacity': None, 'total_population': 154, 'hours_open': None, 'hours_close': None, 'org_name': 'ARC Partner', 'org_id': 126165, 'match_type': None, 'subfacility_code': 'GENPOPSHEL', 'ada_compliant': None, 'pet_accommodations_code': None, 'wheelchair_accessible': None, 'latitude': None, 'longitude': None}}], 'exceededTransferLimit': True, 'properties': {'exceededTransferLimit': True}}"
+  },
+  {
+    "name": "Dallas GIS boundary",
+    "url": "https://gis.dallascityhall.com/arcgis/rest/services/Basemap/CityLimits/MapServer/0/query?where=1%3D1&outFields=CITY&outSR=4326&geometryPrecision=5&f=geojson",
+    "status": 200,
+    "seconds": 0.35,
+    "bytes": 278924,
+    "content_type": "application/geo+json;charset=UTF-8",
+    "cors": null,
+    "keys": [
+      "type",
+      "features"
+    ],
+    "count": 1,
+    "sample": "{'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[-96.54986, 32.84813], [-96.5499, 32.84737], [-96.54889, 32.84725], [-96.54789, 32.84611], [-96.54626, 32.84584], [-96.54337, 32.84558], [-96.54338, 32.84074], [-96.54553, 32.84076], [-96.54553, 32.84076], [-96.54553, 32.84043], [-96.54555, 32.83412], [-96.54555, 32.83362], [-96.54555, 32.83358], [-96.54703, 32.83359], [-96.55538, 32.83364], [-96.55922, 32.83367], [-96.55973, 32.83367], [-96.55976, 32.83367], [-96.55976, 32.83366], [-96.56048, 32.83365], [-96.56061, 32.83362], [-96.56072, 32.83357], [-96.56079, 32.83351], [-96.5621, 32.83215], [-96.56328, 32.83106], [-96.56429, 32.83013], [-96.56444, 32.83002], [-96.56449, 32.8301], [-96.56606, 32.83357], [-96.5661, 32.83366], [-96.56639, 32.8343], [-96.56775, 32.83429], [-96.56808, 32.83429], [-96.56877, 32.83427], [-96.56899, 32.83427], [-96.57112, 32.83421], [-96.5784, 32.83419], [-96.57873, 32.83421], [-96.58723, 32.83416], [-96.58725, 32.83416], [-96.59384, 32.83412], [-96.59409, 32.83428], [-96.59411, 32.8343], [-96.59413, 32.83428], [-96.59433, 32.83412], [-96.5946, 32.83412], [-96.5947, 32.83412], [-96.59478, 32.8336], [-96.59493, 32.83353], [-96.59556, 32.83322], [-96.59591, 32.83342], [-96.59705, 32.83388], [-96.59706, 32.83407], [-96.59701, 32.83416], [-96.59686, 32.83437], [-96.59686, 32.83443], [-96.59689, 32.83451], [-96.59698, 32.8346], [-96.59707, 32.83468], [-96.59741, 32.83465], [-96.59781, 32.83465], [-96.59787, 32.83467], [-96.59812, 32.83485], [-96.59821, 32.8349], [-96.59873, 32.83492], [-96.5989, 32.83521], [-96.59904, 32.83533], [-96.59924, 32.83539], [-96.59964, 32.8355], [-96.59974, 32.83558], [-96.59973, 32.83565], [-96.59969, 32.83568], [-96.59962, 32.83579], [-96.5996, 32.83587], ["
+  },
+  {
+    "name": "OpenFreeMap style",
+    "url": "https://tiles.openfreemap.org/styles/liberty",
+    "status": 200,
+    "seconds": 0.09,
+    "bytes": 43311,
+    "content_type": "application/json",
+    "cors": "*",
+    "keys": [
+      "version",
+      "sources",
+      "sprite",
+      "glyphs",
+      "layers"
+    ],
+    "count": 0,
+    "sample": "{'version': 8, 'sources': {'ne2_shaded': {'maxzoom': 6, 'tileSize': 256, 'tiles': ['https://tiles.openfreemap.org/natural_earth/ne2sr/{z}/{x}/{y}.png'], 'type': 'raster'}, 'openmaptiles': {'type': 'vector', 'url': 'https://tiles.openfreemap.org/planet'}}, 'sprite': 'https://tiles.openfreemap.org/sprites/ofm_f384/ofm', 'glyphs': 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf', 'layers': [{'id': 'background', 'type': 'background', 'paint': {'background-color': '#f8f4f0'}}, {'id': 'natural_earth', 'type': 'raster', 'source': 'ne2_shaded', 'maxzoom': 7, 'paint': {'raster-opacity': ['interpolate', ['exponential', 1.5], ['zoom'], 0, 0.6, 6, 0.1]}}, {'id': 'park', 'type': 'fill', 'source': 'openmaptiles', 'source-layer': 'park', 'filter': ['match', ['geometry-type'], ['MultiPolygon', 'Polygon'], True, False], 'paint': {'fill-color': '#d8e8c8', 'fill-opacity': 0.7, 'fill-outline-color': 'rgba(95, 208, 100, 1)'}}, {'id': 'park_outline', 'type': 'line', 'source': 'openmaptiles', 'source-layer': 'park', 'filter': ['match', ['geometry-type'], ['MultiPolygon', 'Polygon'], True, False], 'paint': {'line-color': 'rgba(228, 241, 215, 1)', 'line-dasharray': [1, 1.5]}}, {'id': 'landuse_residential', 'type': 'fill', 'source': 'openmaptiles', 'source-layer': 'landuse', 'maxzoom': 12, 'filter': ['==', ['get', 'class'], 'residential'], 'paint': {'fill-color': ['interpolate', ['linear'], ['zoom'], 9, 'hsla(0,3%,85%,0.84)', 12, 'hsla(35,57%,88%,0.49)']}}, {'id': 'landcover_wood', 'type': 'fill', 'source': 'openmaptiles', 'source-layer': 'landcover', 'filter': ['==', ['get', 'class'], 'wood'], 'paint': {'fill-antialias': False, 'fill-color': 'hsla(98,61%,72%,0.7)', 'fill-opacity': 0.4}}, {'id': 'landcover_grass', 'type': 'fill', 'source': 'openmaptiles', 'source-layer': 'landcover'",
+    "sources": {
+      "ne2_shaded": {
+        "maxzoom": 6,
+        "tileSize": 256,
+        "tiles": [
+          "https://tiles.openfreemap.org/natural_earth/ne2sr/{z}/{x}/{y}.png"
+        ],
+        "type": "raster"
+      },
+      "openmaptiles": {
+        "type": "vector",
+        "url": "https://tiles.openfreemap.org/planet"
+      }
+    },
+    "glyphs": "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
+    "sprite": "https://tiles.openfreemap.org/sprites/ofm_f384/ofm"
+  },
+  {
+    "name": "Overpass facilities",
+    "url": "https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A20%5D%3Bnwr%5Bamenity%3Dfire_station%5D%2832.75%2C-96.85%2C32.85%2C-96.75%29%3Bout%20center%203%3B",
+    "status": 200,
+    "seconds": 30.93,
+    "bytes": 1185,
+    "content_type": "application/json",
+    "cors": null,
+    "keys": [
+      "version",
+      "generator",
+      "osm3s",
+      "elements"
+    ],
+    "count": 3,
+    "sample": "{'version': 0.6, 'generator': 'Overpass API 0.7.62.11 87bfad18', 'osm3s': {'timestamp_osm_base': '2026-11-07T22:04:36Z', 'copyright': 'The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.'}, 'elements': [{'type': 'node', 'id': 368161352, 'lat': 32.7723929, 'lon': -96.834735, 'tags': {'addr:state': 'TX', 'amenity': 'fire_station', 'ele': '127', 'gnis:feature_id': '2427647', 'name': 'Dallas Fire Station Number 45', 'source': 'USGS Geonames'}}, {'type': 'node', 'id': 3895952578, 'lat': 32.8287137, 'lon': -96.7963423, 'tags': {'amenity': 'fire_station'}}, {'type': 'way', 'id': 221378916, 'center': {'lat': 32.8101713, 'lon': -96.8096792}, 'nodes': [6672165320, 7047510643, 7047510641, 2304049331, 6672165318, 6672165319, 2304049328, 2304049329, 4668706440, 6672165317, 6672165315, 6672165316, 6672165320], 'tags': {'amenity': 'fire_station', 'building': 'yes', 'wikidata': 'Q60752794', 'wikipedia': 'en:Number 4 Hook and Ladder Company'}}]}"
+  }
+]

@@ -1,0 +1,142 @@
+[
+  {
+    "name": "NWS Dallas forecast",
+    "url": "https://api.weather.gov/gridpoints/FWD/89,104/forecast",
+    "status": 200,
+    "seconds": 0.28,
+    "bytes": 12832,
+    "content_type": "application/geo+json",
+    "cors": "*",
+    "keys": [
+      "@context",
+      "type",
+      "geometry",
+      "properties"
+    ],
+    "count": 0,
+    "sample": "{'@context': ['https://geojson.org/geojson-ld/geojson-context.jsonld', {'@version': '1.1', 'wx': 'https://api.weather.gov/ontology#', 'geo': 'http://www.opengis.net/ont/geosparql#', 'unit': 'http://codes.wmo.int/common/unit/', '@vocab': 'https://api.weather.gov/ontology#'}], 'type': 'Feature', 'geometry': {'type': 'Polygon', 'coordinates': [[[-96.7897, 32.7685], [-96.79, 32.7911], [-96.8169, 32.7908], [-96.8165, 32.7682], [-96.7897, 32.7685]]]}, 'properties': {'units': 'us', 'forecastGenerator': 'BaselineForecastGenerator', 'generatedAt': '2026-11-07T22:06:26+00:00', 'updateTime': '2026-11-07T18:26:27+00:00', 'validTimes': '2026-11-07T12:00:00+00:00/P7DT13H', 'elevation': {'unitCode': 'wmoUnit:m', 'value': 136.8552}, 'periods': [{'number': 1, 'name': 'This Afternoon', 'startTime': '2026-11-07T16:00:00-06:00', 'endTime': '2026-11-07T18:00:00-06:00', 'isDaytime': True, 'temperature': 69, 'temperatureUnit': 'F', 'temperatureTrend': None, 'probabilityOfPrecipitation': {'unitCode': 'wmoUnit:percent', 'value': 4}, 'windSpeed': '5 mph', 'windDirection': 'NE', 'icon': 'https://api.weather.gov/icons/land/day/bkn?size=medium', 'shortForecast': 'Mostly Cloudy', 'detailedForecast': 'Mostly cloudy, with a high near 69. Northeast wind around 5 mph.'}, {'number': 2, 'name': 'Tonight', 'startTime': '2026-11-07T18:00:00-06:00', 'endTime': '2026-11-08T06:00:00-06:00', 'isDaytime': False, 'temperature': 54, 'temperatureUnit': 'F', 'temperatureTrend': None, 'probabilityOfPrecipitation': {'unitCode': 'wmoUnit:percent', 'value': 6}, 'windSpeed': '0 to 5 mph', 'windDirection': 'N', 'icon': 'https://api.weather.gov/icons/land/night/bkn?size=medium', 'shortForecast': 'Mostly Cloudy', 'detailedForecast': 'Mostly cloudy, with a low around 54. North wind 0 to 5 mph.'}, {'number': 3, 'name': 'Sunda"
+  },
+  {
+    "name": "IEM FWD filter",
+    "url": "https://mesonet.agron.iastate.edu/geojson/lsr.php?sts=2026-11-06T00:00Z&ets=2026-11-07T22:00Z&wfos=FWD",
+    "status": 200,
+    "seconds": 0.22,
+    "bytes": 45,
+    "content_type": "application/vnd.geo+json; charset=utf-8",
+    "cors": "*",
+    "keys": [
+      "type",
+      "features"
+    ],
+    "count": 0,
+    "sample": "{'type': 'FeatureCollection', 'features': []}"
+  },
+  {
+    "name": "Police metadata",
+    "url": "https://www.dallasopendata.com/api/views/9fxf-t2tr.json",
+    "status": 200,
+    "seconds": 0.34,
+    "bytes": 22376,
+    "content_type": "application/json; charset=utf-8",
+    "cors": "*",
+    "keys": [
+      "id",
+      "name",
+      "assetType",
+      "attribution",
+      "averageRating",
+      "category",
+      "createdAt",
+      "description",
+      "diciBackend",
+      "displayType",
+      "downloadCount",
+      "hideFromCatalog",
+      "hideFromDataJson",
+      "licenseId",
+      "locked"
+    ],
+    "count": 0,
+    "sample": "{'id': '9fxf-t2tr', 'name': 'Dallas Police Active Calls', 'assetType': 'dataset', 'attribution': 'Dallas Police Department', 'averageRating': 0, 'category': 'Public Safety', 'createdAt': 1381248478, 'description': '<b><p>Due to technical issues the Active Calls dataset may experience intermittent delays in automated data refreshing.</b></p>\\n<b>Staff is actively monitoring the situation.</b>\\n\\n<p>The calls listed here are only those where the element assigned to the call has arrived and is currently working the call.   It does not include any calls for service, whether currently being worked or not, that are not releasable due to privacy laws. </p>', 'diciBackend': False, 'displayType': 'table', 'downloadCount': 6563604, 'hideFromCatalog': False, 'hideFromDataJson': False, 'licenseId': 'ODC_BY', 'locked': False, 'newBackend': True, 'numberOfComments': 31, 'oid': 34149723, 'provenance': 'official', 'publicationAppendEnabled': False, 'publicationDate': 1589492018, 'publicationGroup': 1230275, 'publicationStage': 'published', 'rowsUpdatedAt': 1794089161, 'rowsUpdatedBy': 'bkdp-ay8v', 'tableId': 17121683, 'totalTimesRated': 0, 'viewCount': 10457941, 'viewLastModified': 1688743064, 'viewType': 'tabular', 'approvals': [{'reviewedAt': 1607563138, 'reviewedAutomatically': True, 'state': 'approved', 'submissionId': 3009141, 'submissionObject': 'public_audience_request', 'submissionOutcome': 'change_audience', 'submittedAt': 1607563138, 'targetAudience': 'public', 'workflowId': 1948, 'submissionDetails': {'permissionType': 'READ'}, 'submissionOutcomeApplication': {'endedAt': 1607563153, 'failureCount': 0, 'startedAt': 1607563138, 'status': 'success'}, 'submitter': {'id': 'bb7p-4pyf', 'displayName': 'Dallas OpenData2'}}], 'clientContext': {'clientContextVariables': [], 'inherited"
+  },
+  {
+    "name": "NIFC DFW spatial query",
+    "url": "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0/query?where=1%3D1&geometry=-97.65,32.45,-96.25,33.3&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&returnCountOnly=true&f=json",
+    "status": 200,
+    "seconds": 0.31,
+    "bytes": 11,
+    "content_type": "application/json; charset=utf-8",
+    "cors": "*",
+    "keys": [
+      "count"
+    ],
+    "count": 0,
+    "sample": "{'count': 0}"
+  },
+  {
+    "name": "FEMA DFW spatial query",
+    "url": "https://gis.fema.gov/arcgis/rest/services/NSS/OpenShelters/FeatureServer/0/query?where=1%3D1&geometry=-97.65,32.45,-96.25,33.3&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&returnCountOnly=true&f=json",
+    "status": 200,
+    "seconds": 0.26,
+    "bytes": 11,
+    "content_type": "application/json;charset=UTF-8",
+    "cors": "*",
+    "keys": [
+      "count"
+    ],
+    "count": 0,
+    "sample": "{'count': 0}"
+  },
+  {
+    "name": "OpenFreeMap tiles metadata",
+    "url": "https://tiles.openfreemap.org/planet",
+    "status": 200,
+    "seconds": 0.04,
+    "bytes": 19254,
+    "content_type": "application/json",
+    "cors": "*",
+    "keys": [
+      "tilejson",
+      "tiles",
+      "vector_layers",
+      "attribution",
+      "bounds",
+      "center",
+      "description",
+      "maxzoom",
+      "minzoom",
+      "name",
+      "version"
+    ],
+    "count": 0,
+    "sample": "{'tilejson': '3.0.0', 'tiles': ['https://tiles.openfreemap.org/planet/20261101_080013_pt/{z}/{x}/{y}.pbf'], 'vector_layers': [{'id': 'aerodrome_label', 'fields': {'class': 'String', 'ele': 'Number', 'ele_ft': 'Number', 'iata': 'String', 'icao': 'String', 'name': 'String', 'name:af': 'String', 'name:am': 'String', 'name:ar': 'String', 'name:az': 'String', 'name:be': 'String', 'name:bg': 'String', 'name:bn': 'String', 'name:br': 'String', 'name:bs': 'String', 'name:ca': 'String', 'name:co': 'String', 'name:cs': 'String', 'name:cy': 'String', 'name:da': 'String', 'name:de': 'String', 'name:el': 'String', 'name:en': 'String', 'name:eo': 'String', 'name:es': 'String', 'name:et': 'String', 'name:eu': 'String', 'name:fa': 'String', 'name:fi': 'String', 'name:fr': 'String', 'name:fy': 'String', 'name:ga': 'String', 'name:gd': 'String', 'name:he': 'String', 'name:hi': 'String', 'name:hr': 'String', 'name:hu': 'String', 'name:hy': 'String', 'name:id': 'String', 'name:is': 'String', 'name:it': 'String', 'name:ja': 'String', 'name:ja-Hira': 'String', 'name:ja-Latn': 'String', 'name:ka': 'String', 'name:kk': 'String', 'name:kn': 'String', 'name:ko': 'String', 'name:ko-Latn': 'String', 'name:ku': 'String', 'name:la': 'String', 'name:latin': 'String', 'name:lb': 'String', 'name:lt': 'String', 'name:lv': 'String', 'name:mk': 'String', 'name:ml': 'String', 'name:mt': 'String', 'name:nl': 'String', 'name:no': 'String', 'name:nonlatin': 'String', 'name:oc': 'String', 'name:pa': 'String', 'name:pl': 'String', 'name:pnb': 'String', 'name:pt': 'String', 'name:rm': 'String', 'name:ro': 'String', 'name:ru': 'String', 'name:sk': 'String', 'name:sl': 'String', 'name:sq': 'String', 'name:sr': 'String', 'name:sr-Latn': 'String', 'name:sv': 'String', 'name:ta': 'String', 'name:te': 'String', 'name:"
+  },
+  {
+    "name": "OpenFreeMap sprite",
+    "url": "https://tiles.openfreemap.org/sprites/ofm_f384/ofm.json",
+    "status": 200,
+    "seconds": 0.05,
+    "bytes": 27737,
+    "content_type": "application/json",
+    "cors": "*",
+    "keys": [
+      "aerialway",
+      "aerialway_11",
+      "airfield",
+      "airfield_11",
+      "airport",
+      "airport_11",
+      "alcohol_shop",
+      "alcohol_shop_11",
+      "american_football",
+      "american_football_11",
+      "amusement_park",
+      "amusement_park_11",
+      "aquarium",
+      "aquarium_11",
+      "arrow"
+    ],
+    "count": 0,
+    "sample": "{'aerialway': {'height': 19, 'pixelRatio': 1, 'width': 19, 'x': 147, 'y': 190}, 'aerialway_11': {'height': 15, 'pixelRatio': 1, 'width': 15, 'x': 252, 'y': 169}, 'airfield': {'height': 19, 'pixelRatio': 1, 'width': 19, 'x': 166, 'y': 190}, 'airfield_11': {'height': 15, 'pixelRatio': 1, 'width': 15, 'x': 267, 'y': 169}, 'airport': {'height': 19, 'pixelRatio': 1, 'width': 19, 'x': 185, 'y': 190}, 'airport_11': {'height': 17, 'pixelRatio': 1, 'width': 17, 'x': 438, 'y': 211}, 'alcohol_shop': {'height': 21, 'pixelRatio': 1, 'width': 21, 'x': 64, 'y': 0}, 'alcohol_shop_11': {'height': 17, 'pixelRatio': 1, 'width': 17, 'x': 455, 'y': 211}, 'american_football': {'height': 21, 'pixelRatio': 1, 'width': 21, 'x': 85, 'y': 0}, 'american_football_11': {'height': 17, 'pixelRatio': 1, 'width': 17, 'x': 472, 'y': 211}, 'amusement_park': {'height': 21, 'pixelRatio': 1, 'width': 21, 'x': 106, 'y': 0}, 'amusement_park_11': {'height': 17, 'pixelRatio': 1, 'width': 17, 'x': 489, 'y': 211}, 'aquarium': {'height': 21, 'pixelRatio': 1, 'width': 21, 'x': 0, 'y': 64}, 'aquarium_11': {'height': 17, 'pixelRatio': 1, 'width': 17, 'x': 246, 'y': 230}, 'arrow': {'height': 7, 'pixelRatio': 1, 'width': 10, 'x': 72, 'y': 249}, 'art_gallery': {'height': 21, 'pixelRatio': 1, 'width': 21, 'x': 21, 'y': 64}, 'art_gallery_11': {'height': 17, 'pixelRatio': 1, 'width': 17, 'x': 263, 'y': 230}, 'attraction': {'height': 21, 'pixelRatio': 1, 'width': 21, 'x': 42, 'y': 64}, 'attraction_11': {'height': 17, 'pixelRatio': 1, 'width': 17, 'x': 280, 'y': 230}, 'bakery': {'height': 21, 'pixelRatio': 1, 'width': 21, 'x': 63, 'y': 64}, 'bakery_11': {'height': 17, 'pixelRatio': 1, 'width': 17, 'x': 297, 'y': 230}, 'bank': {'height': 21, 'pixelRatio': 1, 'width': 21, 'x': 84, 'y': 64}, 'bank_11': {'height': 17, 'pixelRatio"
+  }
+]
